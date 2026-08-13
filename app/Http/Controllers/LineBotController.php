@@ -54,7 +54,7 @@ class LineBotController extends Controller
         $this->findOrCreateLineUser($lineUserId);
 
         if (in_array($text, ['許願', '願望', 'wish', 'list'], true)) {
-            $this->replyText($replyToken, '每個許願就是一趟想去的行程。登入網站後，發布想去的山與日期，或為其他山友的願望 +1：'.route('lotteries.yushan'));
+            $this->replyText($replyToken, '每個許願就是一趟想去的行程。先看看大家想去哪座山；登入後可發布自己的願望或 +1 響應：'.url('/'));
 
             return;
         }
