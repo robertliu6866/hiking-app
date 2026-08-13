@@ -10,11 +10,25 @@ use App\Http\Controllers\TripController;
 use App\Http\Controllers\TripPaymentController;
 use App\Http\Controllers\TripWishController;
 use App\Http\Controllers\UserFollowController;
+use App\Models\TripWish;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function (\Illuminate\Http\Request $request) {
     if (! $request->user()) {
-        return view('welcome-simple');
+        $wishes = TripWish::query()
+            ->with('user')
+            ->withCount('users')
+            ->where(function ($query) {
+                $query->whereNull('wished_date')
+                    ->orWhereDate('wished_date', '>=', today());
+            })
+            ->orderByRaw('wished_date is null')
+            ->orderBy('wished_date')
+            ->latest()
+            ->take(4)
+            ->get();
+
+        return view('welcome-simple', compact('wishes'));
     }
 
     return redirect()->route('trips.index');

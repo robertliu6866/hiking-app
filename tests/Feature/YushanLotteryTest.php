@@ -26,11 +26,22 @@ class YushanLotteryTest extends TestCase
 
     public function test_guest_homepage_shows_login_and_register_entry(): void
     {
+        $user = User::factory()->create(['name' => '許願山友']);
+
+        TripWish::create([
+            'user_id' => $user->id,
+            'mountain' => '雪山主峰',
+            'wished_date' => now()->addWeek(),
+            'note' => '想找週末同行的山友',
+        ]);
+
         $this->get('/')
             ->assertOk()
-            ->assertSee('會員登入後報名登山活動')
+            ->assertSee('許願活動')
+            ->assertSee('雪山主峰')
+            ->assertSee('想找週末同行的山友')
             ->assertSee('登入')
-            ->assertSee('註冊會員');
+            ->assertSee('加入會員，許願 +1');
     }
 
     public function test_authenticated_homepage_redirects_to_activity_list(): void
