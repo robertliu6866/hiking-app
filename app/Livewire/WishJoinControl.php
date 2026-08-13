@@ -16,8 +16,6 @@ class WishJoinControl extends Component
 
     public bool $allowCancel = true;
 
-    public bool $showCreateTripLink = true;
-
     public bool $simpleJoinLabel = false;
 
     public function mount(int $wishId): void

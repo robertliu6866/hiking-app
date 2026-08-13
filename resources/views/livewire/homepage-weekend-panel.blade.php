@@ -18,7 +18,7 @@
     </div>
 
     <div class="mt-4 space-y-4">
-        @foreach ([['key' => 'guided', 'label' => '想跟團', 'items' => $guidedWishes, 'empty' => '目前還沒有可跟的團，先 +1 讓主揪知道有人想去。'], ['key' => 'self', 'label' => '想揪人', 'items' => $selfOrganizedWishes, 'empty' => '先揪人，等人數夠再開團。']] as $group)
+        @foreach ([['key' => 'guided', 'label' => '想跟團', 'items' => $guidedWishes, 'empty' => '目前還沒有同行邀請，先 +1 讓大家知道你也想去。'], ['key' => 'self', 'label' => '想揪人', 'items' => $selfOrganizedWishes, 'empty' => '先發布你的願望，找願意同行的山友。']] as $group)
             <div wire:key="homepage-weekend-group-{{ $dateKey }}-{{ $group['label'] }}-{{ $refreshKey }}">
                 <div class="mb-2 flex items-center justify-between">
                     <div class="flex items-center gap-2">
@@ -51,7 +51,7 @@
                                             'bg-sky-100 text-sky-700' => $group['key'] === 'self',
                                         ])
                                     >
-                                        {{ $group['key'] === 'guided' ? '等開團' : '先揪人' }}
+                                        {{ $group['key'] === 'guided' ? '找同行' : '先揪人' }}
                                     </span>
                                     <span class="text-xs text-slate-500">{{ $group['label'] }} · 0 人 +1</span>
                                 </div>

@@ -27,7 +27,7 @@ class RegistrationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('trips.index', absolute: false));
+        $response->assertRedirect(route('lotteries.yushan', absolute: false));
         $response->assertSessionHas('status', 'member-created');
     }
 }

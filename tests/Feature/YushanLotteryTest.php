@@ -44,18 +44,18 @@ class YushanLotteryTest extends TestCase
             ->assertSee('加入會員，許願 +1');
     }
 
-    public function test_authenticated_homepage_redirects_to_activity_list(): void
+    public function test_authenticated_homepage_redirects_to_wish_board(): void
     {
         $user = User::factory()->create();
 
         $this->actingAs($user)
             ->get('/')
-            ->assertRedirect(route('trips.index'));
+            ->assertRedirect(route('lotteries.yushan'));
     }
 
-    public function test_login_is_required_for_activity_list(): void
+    public function test_login_is_required_for_wish_board(): void
     {
-        $this->get(route('trips.index'))
+        $this->get(route('lotteries.yushan'))
             ->assertRedirect(route('login'));
     }
 
@@ -116,14 +116,13 @@ class YushanLotteryTest extends TestCase
         $this->actingAs($user)
             ->get(route('lotteries.yushan'))
             ->assertOk()
-            ->assertSee('排程中的許願清單')
+            ->assertSee('每一個許願，就是一趟想去的行程')
             ->assertSee('先建立你的許願')
             ->assertSee('送出許願')
             ->assertSee('已發起的許願')
             ->assertSee('雪山主峰')
             ->assertDontSee('玉山主峰')
-            ->assertSee('2026/07/14')
-            ->assertSee('開團');
+            ->assertSee('2026/07/14');
     }
 
     public function test_user_can_create_wish_from_top_form_with_route_mode_and_date(): void

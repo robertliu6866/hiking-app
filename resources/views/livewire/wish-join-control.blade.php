@@ -177,19 +177,6 @@
                 {{ $wish->users_count }} 人響應
             </span>
 
-            @if ($showCreateTripLink)
-                <a
-                    href="{{ route('trips.create', [
-                        'mountain' => $wish->mountain,
-                        'wished_date' => optional($wish->wished_date)->toDateString(),
-                        'route_mode' => $wish->route_mode,
-                        'note' => $wish->note,
-                    ]) }}"
-                    class="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700"
-                >
-                    開團
-                </a>
-            @endif
         </div>
     </div>
 

@@ -44,7 +44,7 @@ class FollowedUserActivityCreated extends Notification
             'actor_name' => $this->actor->name,
             'wish_id' => $this->activity->id,
             'mountain' => $this->activity->mountain,
-            'url' => route('trips.index'),
+            'url' => route('lotteries.yushan'),
             'message' => $this->actor->name.' 發佈了新許願，邀請你一起響應。',
         ];
     }

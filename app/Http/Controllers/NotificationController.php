@@ -11,6 +11,6 @@ class NotificationController extends Controller
         $notification = $request->user()->notifications()->whereKey($notification)->firstOrFail();
         $notification->markAsRead();
 
-        return redirect($notification->data['url'] ?? route('trips.index'));
+        return redirect($notification->data['url'] ?? route('lotteries.yushan'));
     }
 }

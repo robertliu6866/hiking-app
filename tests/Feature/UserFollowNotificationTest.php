@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\Trip;
 use App\Models\TripWish;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -31,34 +30,6 @@ class UserFollowNotificationTest extends TestCase
             ->assertSessionHas('status', 'user-unfollowed');
 
         $this->assertFalse($follower->following()->whereKey($followed->id)->exists());
-    }
-
-    public function test_followers_receive_a_notification_when_followed_user_creates_trip(): void
-    {
-        $host = User::factory()->create(['name' => '主揪山友', 'is_admin' => true]);
-        $follower = User::factory()->create();
-        $otherUser = User::factory()->create();
-        $follower->following()->attach($host->id);
-
-        $this->actingAs($host)->post(route('trips.store'), [
-            'title' => '南湖群峰縱走',
-            'mountain' => '南湖大山',
-            'category' => '百岳',
-            'route_mode' => 'traverse',
-            'difficulty' => 4,
-            'location' => '宜蘭',
-            'departure_time' => now()->addWeeks(2)->format('Y-m-d\TH:i'),
-            'price' => 0,
-            'quota' => 5,
-        ]);
-
-        $trip = Trip::firstOrFail();
-        $notification = $follower->notifications()->firstOrFail();
-
-        $this->assertSame('followed_user_trip_created', $notification->data['type']);
-        $this->assertSame($trip->id, $notification->data['trip_id']);
-        $this->assertSame('主揪山友 發佈了新行程，邀請你一起參加。', $notification->data['message']);
-        $this->assertSame(0, $otherUser->notifications()->count());
     }
 
     public function test_followers_receive_a_notification_when_followed_user_creates_wish(): void

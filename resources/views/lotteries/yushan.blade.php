@@ -1,8 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="text-base font-semibold text-slate-900">許願排程</h2>
-            <a href="{{ route('trips.index') }}" class="text-sm text-slate-500">返回活動</a>
+            <h2 class="text-base font-semibold text-slate-900">登山許願</h2>
+            <a href="{{ route('dashboard') }}" class="text-sm text-slate-500">我的許願</a>
         </div>
     </x-slot>
 
@@ -12,9 +12,9 @@
                 <div class="-mx-5 -mt-5 h-48 bg-[linear-gradient(135deg,#0f172a_0%,#334155_42%,#dbeafe_100%)]">
                     <div class="flex h-full items-end bg-black/10 p-5">
                         <div>
-                            <span class="rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-800">依日期排程</span>
-                            <h1 class="mt-3 text-3xl font-semibold leading-tight text-white">排程中的許願清單</h1>
-                            <p class="mt-2 text-sm leading-6 text-white/85">只保留已經有人發起、並且出發日在五天後的許願，方便大家按日期接力湊團。</p>
+                            <span class="rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-800">以山友為中心</span>
+                            <h1 class="mt-3 text-3xl font-semibold leading-tight text-white">每一個許願，就是一趟想去的行程</h1>
+                            <p class="mt-2 text-sm leading-6 text-white/85">發起你的登山願望，找到同樣想去的山友，一起把想法變成出發計畫。</p>
                         </div>
                     </div>
                 </div>
@@ -35,7 +35,7 @@
                 </div>
 
                 <div class="mt-5 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-800">
-                    這裡只顯示有人真正發起、而且出發日在五天後的許願。列表會依日期排序，每頁最多顯示五筆。
+                    不需要等待主揪開團：你發布的許願本身就是活動。選好山、日期和路線，讓其他山友直接響應。
                 </div>
             </section>
 
@@ -191,7 +191,6 @@
                     @livewire(\App\Livewire\WishJoinControl::class, [
                         'wishId' => $wish->id,
                         'allowCancel' => true,
-                        'showCreateTripLink' => true,
                         'simpleJoinLabel' => true,
                     ], key('popular-lottery-'.$wish->id))
                 @empty

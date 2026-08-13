@@ -1,8 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="text-base font-semibold text-slate-900">我的報名</h2>
-            <a href="{{ route('trips.index') }}" class="text-sm font-medium text-emerald-700">看活動列表</a>
+            <h2 class="text-base font-semibold text-slate-900">我的許願</h2>
+            <a href="{{ route('lotteries.yushan') }}" class="text-sm font-medium text-emerald-700">查看許願</a>
         </div>
     </x-slot>
 
@@ -10,52 +10,17 @@
         <div class="page-container space-y-4">
             <section class="ui-card">
                 <p class="text-sm font-semibold text-emerald-700">會員中心</p>
-                <h1 class="mt-1 text-2xl font-semibold leading-tight text-slate-950">我的報名</h1>
+                <h1 class="mt-1 text-2xl font-semibold leading-tight text-slate-950">我的許願</h1>
                 <p class="mt-2 text-sm leading-6 text-slate-500">
-                    這裡會列出你已報名的活動，以及已參加的許願行程。
+                    這裡會列出你發起或響應的登山許願。
                 </p>
-            </section>
-
-            <section class="space-y-3">
-                @forelse ($joinedTrips as $trip)
-                    <article class="ui-card">
-                        <div class="flex items-start justify-between gap-3">
-                            <div class="min-w-0">
-                                <div class="text-xs font-semibold text-emerald-700">
-                                    {{ $trip->departure_time ? $trip->departure_time->format('Y/m/d H:i') : '時間待補' }}
-                                </div>
-                                <h3 class="mt-1 text-lg font-semibold leading-tight text-slate-950">{{ $trip->title }}</h3>
-                                <p class="mt-1 text-sm leading-6 text-slate-500">
-                                    {{ $trip->mountain ?: '山名待補' }} · {{ $trip->meeting_point ?: '集合地點待補' }}
-                                </p>
-                            </div>
-
-                            <span class="shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                                已報名
-                            </span>
-                        </div>
-
-                        <div class="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
-                            <span class="text-xs text-slate-500">主辦：{{ $trip->user?->name ?? '管理員' }}</span>
-                            <a href="{{ route('trips.show', $trip) }}" class="text-xs font-semibold text-emerald-700">查看詳情</a>
-                        </div>
-                    </article>
-                @empty
-                    <div class="ui-empty">
-                        <div class="text-sm font-medium text-slate-900">尚未報名活動</div>
-                        <p class="mt-1 text-sm text-slate-500">先到活動列表選一個活動報名。</p>
-                        <a href="{{ route('trips.index') }}" class="ui-btn-primary mt-4">
-                            看活動列表
-                        </a>
-                    </div>
-                @endforelse
             </section>
 
             <section class="space-y-3">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h2 class="text-base font-semibold text-slate-900">我的許願</h2>
-                        <p class="mt-1 text-sm text-slate-500">你已 +1 的許願行程也會顯示在這裡。</p>
+                        <h2 class="text-base font-semibold text-slate-900">已響應的願望</h2>
+                        <p class="mt-1 text-sm text-slate-500">你 +1 的登山願望會顯示在這裡。</p>
                     </div>
                 </div>
 

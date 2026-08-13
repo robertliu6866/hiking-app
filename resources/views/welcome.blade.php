@@ -635,7 +635,7 @@
                             <p class="text-xs font-semibold text-emerald-700">3. 發起揪團找同伴</p>
                             <h2 class="mt-1 text-xl font-semibold leading-tight text-slate-950">選週末，按 +1 找同行</h2>
                             <p class="mt-2 text-sm leading-6 text-slate-500">
-                                這不是正式開團，是先讓大家知道你想去。人夠多，再由主揪開團。
+                                這就是你的登山願望：先讓大家知道你想去，找到願意同行的山友。
                             </p>
                         </div>
 

@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Trip;
 use App\Models\User;
-use App\Services\LineFlexMessageService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -13,10 +11,6 @@ use Illuminate\Support\Str;
 
 class LineBotController extends Controller
 {
-    public function __construct(private readonly LineFlexMessageService $flexMessages)
-    {
-    }
-
     public function webhook(Request $request): JsonResponse
     {
         $body = $request->getContent();
@@ -57,22 +51,10 @@ class LineBotController extends Controller
             return;
         }
 
-        $user = $this->findOrCreateLineUser($lineUserId);
+        $this->findOrCreateLineUser($lineUserId);
 
-        if (in_array($text, ['活動', '活動列表', '找活動', 'trips', 'list'], true)) {
-            $this->replyTripList($replyToken);
-
-            return;
-        }
-
-        if (in_array($text, ['我的活動', '我的報名', '報名', 'my'], true)) {
-            $this->replyText($replyToken, $this->myTripsText($user));
-
-            return;
-        }
-
-        if (preg_match('/^(參加|我要參加|join)\s*#?(\d+)$/iu', $text, $matches)) {
-            $this->replyText($replyToken, $this->joinTripText($user, (int) $matches[2]));
+        if (in_array($text, ['許願', '願望', 'wish', 'list'], true)) {
+            $this->replyText($replyToken, '每個許願就是一趟想去的行程。登入網站後，發布想去的山與日期，或為其他山友的願望 +1：'.route('lotteries.yushan'));
 
             return;
         }
@@ -86,15 +68,6 @@ class LineBotController extends Controller
 
         if (! $lineUserId) {
             $this->replyText($replyToken, '目前只支援一對一聊天室操作。');
-
-            return;
-        }
-
-        parse_str((string) ($event['postback']['data'] ?? ''), $data);
-
-        if (($data['action'] ?? null) === 'join_trip' && isset($data['trip_id'])) {
-            $user = $this->findOrCreateLineUser($lineUserId);
-            $this->replyText($replyToken, $this->joinTripText($user, (int) $data['trip_id']));
 
             return;
         }
@@ -114,88 +87,14 @@ class LineBotController extends Controller
         );
     }
 
-    private function replyTripList(string $replyToken): void
-    {
-        $trips = Trip::query()
-            ->where('status', 'open')
-            ->withCount('participants')
-            ->upcoming()
-            ->orderBy('departure_time')
-            ->take(8)
-            ->get();
-
-        if ($trips->isEmpty()) {
-            $this->replyText($replyToken, "目前沒有開放報名的活動。\n\n輸入「許願」可以先告訴我們想去哪座山。");
-
-            return;
-        }
-
-        $this->replyMessages($replyToken, [
-            $this->flexMessages->tripCarousel($trips),
-        ]);
-    }
-
-    private function myTripsText(User $user): string
-    {
-        $trips = $user->joinedTrips()
-            ->upcoming()
-            ->orderBy('departure_time')
-            ->take(8)
-            ->get();
-
-        if ($trips->isEmpty()) {
-            return "你目前還沒有報名活動。\n\n輸入「活動」查看可參加的行程。";
-        }
-
-        $lines = ["你已報名："];
-
-        foreach ($trips as $trip) {
-            $date = $trip->departure_time?->format('m/d H:i') ?? '時間待定';
-            $lines[] = "{$date}｜{$trip->title}";
-            $lines[] = $trip->meeting_point ? "集合：{$trip->meeting_point}" : '集合地點待補';
-            $lines[] = '';
-        }
-
-        return trim(implode("\n", $lines));
-    }
-
-    private function joinTripText(User $user, int $tripId): string
-    {
-        $trip = Trip::query()
-            ->withCount('participants')
-            ->upcoming()
-            ->find($tripId);
-
-        if (! $trip) {
-            return "找不到這個活動。\n\n輸入「活動」查看目前可報名行程。";
-        }
-
-        if ($trip->status !== 'open') {
-            return '這個活動目前沒有開放報名。';
-        }
-
-        if ($trip->participants()->whereKey($user->id)->exists()) {
-            return "你已經報名「{$trip->title}」。\n\n輸入「我的活動」查看已報名行程。";
-        }
-
-        if ($trip->participants_count >= $trip->quota) {
-            return "「{$trip->title}」目前名額已滿。";
-        }
-
-        $trip->participants()->attach($user->id);
-
-        return "報名成功：{$trip->title}\n\n輸入「我的活動」可以查看已報名行程。";
-    }
-
     private function helpText(): string
     {
         return implode("\n", [
             '劉里長登山 LINE Bot',
             '',
             '可輸入：',
-            '活動：查看開放活動',
-            '參加 1：報名指定活動 ID',
-            '我的活動：查看已報名行程',
+            '許願：前往登山許願板',
+            '在網站發起願望，或為想同行的願望 +1。',
         ]);
     }
 

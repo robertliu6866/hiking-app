@@ -11,13 +11,6 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
-        $joinedTrips = $user->joinedTrips()
-            ->with('user')
-            ->withCount(['participants', 'pendingOrders'])
-            ->upcoming()
-            ->orderBy('departure_time')
-            ->get();
-
         $joinedWishes = TripWish::query()
             ->select('trip_wishes.*')
             ->with([
@@ -37,7 +30,6 @@ class DashboardController extends Controller
             ->get();
 
         return view('dashboard', [
-            'joinedTrips' => $joinedTrips,
             'joinedWishes' => $joinedWishes,
         ]);
     }

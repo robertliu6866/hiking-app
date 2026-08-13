@@ -67,7 +67,7 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         return redirect()
-            ->intended(route('trips.index', absolute: false))
+            ->intended(route('lotteries.yushan', absolute: false))
             ->with('status', 'member-created');
     }
 }

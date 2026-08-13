@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Trip;
 use App\Models\TripWish;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -46,7 +45,6 @@ class LotteryController extends Controller
             '郡大山',
         ])
             ->merge(TripWish::query()->whereNotNull('mountain')->pluck('mountain'))
-            ->merge(Trip::query()->whereNotNull('mountain')->pluck('mountain'))
             ->map(fn ($mountain) => trim((string) $mountain))
             ->filter()
             ->unique()
