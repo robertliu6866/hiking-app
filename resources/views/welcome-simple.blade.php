@@ -29,6 +29,13 @@
 
                 <div class="mt-5 space-y-3">
                     @forelse ($wishes as $wish)
+                        @php
+                            $wishUsers = collect([$wish->user])
+                                ->merge($wish->users)
+                                ->filter()
+                                ->unique('id')
+                                ->take(6);
+                        @endphp
                         <article class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/60">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
@@ -44,6 +51,24 @@
                             @if ($wish->note)
                                 <p class="mt-3 text-sm leading-6 text-slate-600">{{ $wish->note }}</p>
                             @endif
+                            <div class="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
+                                <div>
+                                    <p class="text-xs text-slate-500">想去的山友</p>
+                                    <div class="mt-2 flex items-center">
+                                        @foreach ($wishUsers as $wishUser)
+                                            <img
+                                                src="{{ $wishUser->avatar_url }}"
+                                                alt="{{ $wishUser->name }}"
+                                                title="{{ $wishUser->name }}"
+                                                class="-ml-1 h-8 w-8 rounded-full border-2 border-white object-cover first:ml-0"
+                                            >
+                                        @endforeach
+                                    </div>
+                                </div>
+                                @if ($wish->users_count > $wishUsers->count())
+                                    <span class="text-xs text-slate-500">還有 {{ $wish->users_count - $wishUsers->count() }} 位</span>
+                                @endif
+                            </div>
                         </article>
                     @empty
                         <div class="rounded-2xl border border-dashed border-emerald-200 bg-emerald-50 p-5">

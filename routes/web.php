@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function (\Illuminate\Http\Request $request) {
     if (! $request->user()) {
         $wishes = TripWish::query()
-            ->with('user')
+            ->with(['user', 'users'])
             ->withCount('users')
             ->where(function ($query) {
                 $query->whereNull('wished_date')

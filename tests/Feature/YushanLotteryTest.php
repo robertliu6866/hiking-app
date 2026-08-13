@@ -40,6 +40,8 @@ class YushanLotteryTest extends TestCase
             ->assertSee('許願活動')
             ->assertSee('雪山主峰')
             ->assertSee('想找週末同行的山友')
+            ->assertSee('想去的山友')
+            ->assertSee('許願山友')
             ->assertSee('登入')
             ->assertSee('加入會員，許願 +1');
     }
