@@ -32,7 +32,9 @@ class WishParticipantNotificationTest extends TestCase
 
         Notification::assertSentTo($owner, WishParticipantJoined::class, function ($notification, array $channels) use ($owner) {
             return $channels === ['database', 'line']
-                && $notification->toLine($owner)['text'] === 'liuiu 參加了你的許願團「玉山主峰」。';
+                && $notification->toLine($owner)['type'] === 'flex'
+                && str_contains($notification->toLine($owner)['contents']['hero']['url'], 'ui-avatars.com')
+                && $notification->toLine($owner)['contents']['body']['contents'][2]['text'] === 'liuiu 參加了你的許願團「玉山主峰」。';
         });
         Notification::assertSentTo($existingParticipant, WishParticipantJoined::class);
         Notification::assertNotSentTo($joiningUser, WishParticipantJoined::class);

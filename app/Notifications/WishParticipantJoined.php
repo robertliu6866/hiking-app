@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\TripWish;
 use App\Models\User;
+use App\Services\LineFlexMessageService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -36,10 +37,11 @@ class WishParticipantJoined extends Notification
 
     public function toLine(object $notifiable): array
     {
-        return [
-            'type' => 'text',
-            'text' => $this->messageFor($notifiable),
-        ];
+        return app(LineFlexMessageService::class)->wishParticipantJoined(
+            $this->wish,
+            $this->joiningUser,
+            $this->messageFor($notifiable),
+        );
     }
 
     private function messageFor(object $notifiable): string

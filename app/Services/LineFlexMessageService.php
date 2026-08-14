@@ -3,10 +3,93 @@
 namespace App\Services;
 
 use App\Models\Trip;
+use App\Models\TripWish;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 
 class LineFlexMessageService
 {
+    /**
+     * @return array<string, mixed>
+     */
+    public function wishParticipantJoined(TripWish $wish, User $joiningUser, string $message): array
+    {
+        $date = $wish->wished_date?->format('Y/m/d') ?? '日期待定';
+        $avatar = $joiningUser->line_picture_url ?: $joiningUser->avatar_url;
+
+        return [
+            'type' => 'flex',
+            'altText' => "{$joiningUser->name} 已加入 {$wish->mountain} 許願",
+            'contents' => [
+                'type' => 'bubble',
+                'size' => 'mega',
+                'hero' => [
+                    'type' => 'image',
+                    'url' => $avatar,
+                    'size' => 'full',
+                    'aspectRatio' => '20:13',
+                    'aspectMode' => 'cover',
+                    'action' => [
+                        'type' => 'uri',
+                        'uri' => route('lotteries.yushan'),
+                    ],
+                ],
+                'body' => [
+                    'type' => 'box',
+                    'layout' => 'vertical',
+                    'spacing' => 'md',
+                    'backgroundColor' => '#F0FDF4',
+                    'contents' => [
+                        [
+                            'type' => 'text',
+                            'text' => '許願成功 · 新山友加入',
+                            'size' => 'xs',
+                            'weight' => 'bold',
+                            'color' => '#15803D',
+                        ],
+                        [
+                            'type' => 'text',
+                            'text' => $joiningUser->name,
+                            'size' => 'xl',
+                            'weight' => 'bold',
+                            'color' => '#0F172A',
+                            'wrap' => true,
+                        ],
+                        [
+                            'type' => 'text',
+                            'text' => $message,
+                            'size' => 'sm',
+                            'color' => '#475569',
+                            'wrap' => true,
+                        ],
+                        [
+                            'type' => 'separator',
+                            'margin' => 'md',
+                        ],
+                        $this->infoRow('想去的山', $wish->mountain),
+                        $this->infoRow('預計日期', $date),
+                    ],
+                ],
+                'footer' => [
+                    'type' => 'box',
+                    'layout' => 'vertical',
+                    'paddingAll' => '12px',
+                    'contents' => [[
+                        'type' => 'button',
+                        'style' => 'primary',
+                        'height' => 'sm',
+                        'color' => '#16A34A',
+                        'action' => [
+                            'type' => 'uri',
+                            'label' => '查看許願看板',
+                            'uri' => route('lotteries.yushan'),
+                        ],
+                    ]],
+                ],
+            ],
+        ];
+    }
+
     /**
      * @param  Collection<int, Trip>  $trips
      * @return array<string, mixed>
