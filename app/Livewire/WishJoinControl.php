@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Actions\ToggleWishJoin;
+use App\Actions\NotifyWishParticipants;
 use App\Models\TripWish;
 use Illuminate\View\View;
 use Livewire\Attributes\Renderless;
@@ -24,7 +25,7 @@ class WishJoinControl extends Component
     }
 
     #[Renderless]
-    public function toggle(ToggleWishJoin $toggleWishJoin): void
+    public function toggle(ToggleWishJoin $toggleWishJoin, NotifyWishParticipants $notifyWishParticipants): void
     {
         $wish = $this->wish();
 
@@ -36,6 +37,10 @@ class WishJoinControl extends Component
         }
 
         $status = $toggleWishJoin->handle($wish, auth()->user());
+
+        if ($status === 'joined') {
+            $notifyWishParticipants->handle($wish, auth()->user());
+        }
         $hasJoined = $status !== 'canceled';
         $count = $wish->users()->count();
 

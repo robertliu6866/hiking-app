@@ -66,4 +66,19 @@
             </a>
         </div>
     </form>
+
+    <div class="my-5 flex items-center gap-3 text-xs text-slate-400">
+        <div class="h-px flex-1 bg-slate-200"></div>
+        或
+        <div class="h-px flex-1 bg-slate-200"></div>
+    </div>
+
+    @error('line')
+        <p class="mb-3 text-sm text-red-600">{{ $message }}</p>
+    @enderror
+
+    <a href="{{ route('login.line') }}" class="flex w-full items-center justify-center gap-2 rounded-xl bg-[#06C755] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#05b84e]">
+        <span class="flex h-5 w-5 items-center justify-center rounded bg-white text-xs font-bold text-[#06C755]">LINE</span>
+        使用 LINE 登入
+    </a>
 </x-guest-layout>

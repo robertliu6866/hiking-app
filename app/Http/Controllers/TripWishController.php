@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\NotifyFollowersAboutActivity;
+use App\Actions\NotifyWishParticipants;
 use App\Actions\ToggleWishJoin;
 use App\Models\TripWish;
 use Illuminate\Http\Request;
@@ -73,9 +74,15 @@ class TripWishController extends Controller
             app(NotifyFollowersAboutActivity::class)->handle($request->user(), $wish);
         }
 
+        $wasJoined = $wish->users()->whereKey($request->user()->id)->exists();
+
         $wish->allUsers()->syncWithoutDetaching([
             $request->user()->id => ['status' => 'joined'],
         ]);
+
+        if (! $wish->wasRecentlyCreated && ! $wasJoined) {
+            app(NotifyWishParticipants::class)->handle($wish, $request->user());
+        }
 
         if ($request->expectsJson()) {
             return response()->noContent();
@@ -90,13 +97,17 @@ class TripWishController extends Controller
         return back()->with('status', $wish->wasRecentlyCreated ? 'wish-created' : 'wish-existing');
     }
 
-    public function join(Request $request, TripWish $tripWish, ToggleWishJoin $toggleWishJoin)
+    public function join(Request $request, TripWish $tripWish, ToggleWishJoin $toggleWishJoin, NotifyWishParticipants $notifyWishParticipants)
     {
         $validated = $request->validate([
             'redirect_to' => ['nullable', 'url'],
         ]);
 
         $status = $toggleWishJoin->handle($tripWish, $request->user());
+
+        if ($status === 'joined') {
+            $notifyWishParticipants->handle($tripWish, $request->user());
+        }
 
         if ($request->expectsJson()) {
             return response()->noContent();

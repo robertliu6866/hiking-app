@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Actions\NotifyFollowersAboutActivity;
+use App\Actions\NotifyWishParticipants;
 use App\Actions\ToggleWishJoin;
 use App\Models\TripWish;
 use Illuminate\Support\Collection;
@@ -45,7 +46,7 @@ class HomepageWishButton extends Component
         }
     }
 
-    public function toggle(ToggleWishJoin $toggleWishJoin, NotifyFollowersAboutActivity $notifyFollowers): void
+    public function toggle(ToggleWishJoin $toggleWishJoin, NotifyFollowersAboutActivity $notifyFollowers, NotifyWishParticipants $notifyWishParticipants): void
     {
         $wish = $this->resolveWish();
 
@@ -64,6 +65,10 @@ class HomepageWishButton extends Component
             $status = 'joined';
         } else {
             $status = $toggleWishJoin->handle($wish, auth()->user());
+
+            if ($status === 'joined') {
+                $notifyWishParticipants->handle($wish, auth()->user());
+            }
         }
 
         $this->wishId = $wish->id;

@@ -27,6 +27,12 @@ return [
         'channel_secret' => env('LINE_CHANNEL_SECRET'),
     ],
 
+    'line_login' => [
+        'channel_id' => env('LINE_LOGIN_CHANNEL_ID'),
+        'channel_secret' => env('LINE_LOGIN_CHANNEL_SECRET'),
+        'callback_url' => env('LINE_LOGIN_CALLBACK_URL'),
+    ],
+
     'line_pay' => [
         'channel_id' => env('LINE_PAY_CHANNEL_ID'),
         'channel_secret' => env('LINE_PAY_CHANNEL_SECRET'),
