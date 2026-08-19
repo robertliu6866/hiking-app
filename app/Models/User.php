@@ -51,7 +51,6 @@ protected $fillable = [
     'membership_paid_at',
     'membership_expires_at',
     'profile_completed_at',
-    'onboarding_seen_at',
 ];
 
 
@@ -83,7 +82,6 @@ protected $fillable = [
             'hiking_styles' => 'array',
             'preferred_difficulty_min' => 'integer',
             'preferred_difficulty_max' => 'integer',
-            'onboarding_seen_at' => 'datetime',
         ];
     }
 

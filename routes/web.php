@@ -3,7 +3,6 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LotteryController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TripWishController;
 use App\Http\Controllers\UserFollowController;
@@ -36,8 +35,6 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::post('/onboarding/complete', [OnboardingController::class, 'complete'])->name('onboarding.complete');
-
     Route::get('/lotteries/yushan', [LotteryController::class, 'yushan'])->name('lotteries.yushan');
 
     Route::post('/trip-wishes', [TripWishController::class, 'store'])->name('trip-wishes.store');

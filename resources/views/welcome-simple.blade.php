@@ -9,6 +9,7 @@
         @endif
     </head>
     <body class="min-h-screen bg-slate-50 text-slate-950">
+        <x-guest-welcome-dialog />
         <main class="mx-auto flex min-h-screen w-full max-w-[430px] flex-col px-5 py-6">
             <header class="flex items-center gap-3">
                 <x-application-logo class="h-11 w-11 shrink-0" />
