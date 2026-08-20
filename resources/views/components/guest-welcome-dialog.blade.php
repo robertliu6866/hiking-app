@@ -2,10 +2,10 @@
     x-data="{
         open: false,
         init() {
-            this.open = ! window.localStorage.getItem('liuliu_guest_welcome_seen');
+            this.open = ! window.sessionStorage.getItem('liuliu_welcome_seen');
         },
         complete() {
-            window.localStorage.setItem('liuliu_guest_welcome_seen', '1');
+            window.sessionStorage.setItem('liuliu_welcome_seen', '1');
             this.open = false;
         }
     }"

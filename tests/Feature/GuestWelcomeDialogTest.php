@@ -20,11 +20,11 @@ class GuestWelcomeDialogTest extends TestCase
             ->assertSee('我懂了，開始找山友');
     }
 
-    public function test_signed_in_hiker_does_not_receive_the_guest_welcome_dialog(): void
+    public function test_signed_in_hiker_also_sees_the_welcome_dialog_when_returning(): void
     {
         $this->actingAs(User::factory()->create())
             ->get(route('lotteries.yushan'))
             ->assertOk()
-            ->assertDontSee('我們怎麼玩？');
+            ->assertSee('我們怎麼玩？');
     }
 }

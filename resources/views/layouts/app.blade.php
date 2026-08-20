@@ -41,6 +41,8 @@
                 {{ $slot }}
             </main>
 
+            <x-guest-welcome-dialog />
+
         </div>
     </div>
 
