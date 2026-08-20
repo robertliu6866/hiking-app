@@ -135,9 +135,16 @@
     @endif
 
     @if ($guidedEstimate)
-        <div class="mt-3 flex items-center justify-between rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm">
-            <span class="text-emerald-900">{{ $wish->guided_days }} 天 · 預計 {{ $wish->expected_participants }} 人<br><span class="text-xs text-emerald-700">嚮導與車費均攤</span></span>
-            <span class="font-semibold text-emerald-800">約 NT${{ number_format($guidedEstimate) }}／人</span>
+        <div class="mt-3 grid grid-cols-2 divide-x divide-emerald-100 rounded-2xl border border-emerald-100 bg-emerald-50 text-sm">
+            <div class="px-4 py-3">
+                <div class="text-xs font-medium text-emerald-700">揪團人數</div>
+                <div class="mt-1 font-semibold text-emerald-950">{{ $wish->expected_participants }} 人 <span class="text-xs font-normal text-emerald-700">· {{ $wish->guided_days }} 天</span></div>
+            </div>
+            <div class="px-4 py-3">
+                <div class="text-xs font-medium text-emerald-700">每人預估費用</div>
+                <div class="mt-1 font-semibold text-emerald-950">NT${{ number_format($guidedEstimate) }}</div>
+                <div class="mt-0.5 text-xs text-emerald-700">嚮導＋車費均攤</div>
+            </div>
         </div>
     @endif
 

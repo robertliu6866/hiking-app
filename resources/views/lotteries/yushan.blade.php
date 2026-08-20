@@ -239,12 +239,12 @@
                                 @error('guided_days') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             </div>
                             <div>
-                                <label for="expected-participants" class="ui-label">預計人數</label>
+                                <label for="expected-participants" class="ui-label">揪團人數</label>
                                 <input id="expected-participants" name="expected_participants" type="number" min="2" max="30" x-model.number="expectedParticipants" x-bind:required="tripMode === 'guided'">
                                 @error('expected_participants') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             </div>
                         </div>
-                        <p class="mt-3 text-xs leading-5 text-emerald-800">計算方式：〈NT$4,000 × 天數＋NT$8,000 車費〉÷ 預計人數。實際費用以成行確認為準。</p>
+                        <p class="mt-3 text-xs leading-5 text-emerald-800">計算方式：〈NT$4,000 × 天數＋NT$8,000 車費〉÷ 揪團人數。實際費用以成行確認為準。</p>
                     </div>
 
                     <div>

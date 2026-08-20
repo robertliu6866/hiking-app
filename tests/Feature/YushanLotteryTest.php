@@ -178,7 +178,9 @@ class YushanLotteryTest extends TestCase
         $this->actingAs($user)
             ->get(route('lotteries.yushan'))
             ->assertSee('請嚮導帶團')
-            ->assertSee('約 NT$2,000／人');
+            ->assertSee('揪團人數')
+            ->assertSee('每人預估費用')
+            ->assertSee('NT$2,000');
     }
 
     public function test_yushan_lottery_page_orders_by_date_and_paginates_after_five_items(): void
