@@ -15,7 +15,9 @@ class GuestWelcomeDialogTest extends TestCase
         $this->get('/')
             ->assertOk()
             ->assertSee('我們怎麼玩？')
-            ->assertSee('認同，山上見');
+            ->assertSee('不是找主揪，是找到願意同行的人。')
+            ->assertSee('第一位許願的人不必帶隊')
+            ->assertSee('我懂了，開始找山友');
     }
 
     public function test_signed_in_hiker_does_not_receive_the_guest_welcome_dialog(): void
