@@ -14,6 +14,17 @@
             suggestions: @js($mountainSuggestions),
             suggestionOpen: false,
             highlightedIndex: 0,
+            tripMode: @js(old('homepage_group', 'self')),
+            guidedDays: @js((int) old('guided_days', 1)),
+            expectedParticipants: @js((int) old('expected_participants', 8)),
+            guideDailyFee: @js(config('wishes.guide_daily_fee')),
+            transportFee: @js(config('wishes.transport_fee')),
+            get estimatedPerPerson() {
+                const days = Math.max(1, Number(this.guidedDays) || 1);
+                const people = Math.max(1, Number(this.expectedParticipants) || 1);
+
+                return Math.ceil(((this.guideDailyFee * days) + this.transportFee) / people);
+            },
             get filteredSuggestions() {
                 const keyword = this.query.trim().toLowerCase();
 
@@ -194,6 +205,46 @@
                             </select>
                             @error('route_mode') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                         </div>
+                    </div>
+
+                    <fieldset>
+                        <legend class="ui-label">這趟怎麼成行？</legend>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="cursor-pointer rounded-2xl border p-3 transition" :class="tripMode === 'guided' ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-white'">
+                                <input class="sr-only" type="radio" name="homepage_group" value="guided" x-model="tripMode">
+                                <span class="block text-sm font-semibold text-slate-900">請嚮導帶團</span>
+                                <span class="mt-1 block text-xs leading-5 text-slate-500">費用依天數與人數均攤</span>
+                            </label>
+                            <label class="cursor-pointer rounded-2xl border p-3 transition" :class="tripMode === 'self' ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-white'">
+                                <input class="sr-only" type="radio" name="homepage_group" value="self" x-model="tripMode">
+                                <span class="block text-sm font-semibold text-slate-900">自由成團</span>
+                                <span class="mt-1 block text-xs leading-5 text-slate-500">成行時抽籤選協調人</span>
+                            </label>
+                        </div>
+                        @error('homepage_group') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                    </fieldset>
+
+                    <div x-cloak x-show="tripMode === 'guided'" x-transition class="rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <h4 class="text-sm font-semibold text-emerald-950">嚮導與車費均攤</h4>
+                                <p class="mt-1 text-xs leading-5 text-emerald-800">嚮導 NT$4,000／天，車費 NT$8,000／車。</p>
+                            </div>
+                            <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-emerald-700">預估 <span x-text="'NT$' + estimatedPerPerson.toLocaleString()"></span>／人</span>
+                        </div>
+                        <div class="mt-4 grid grid-cols-2 gap-3">
+                            <div>
+                                <label for="guided-days" class="ui-label">行程天數</label>
+                                <input id="guided-days" name="guided_days" type="number" min="1" max="14" x-model.number="guidedDays" x-bind:required="tripMode === 'guided'">
+                                @error('guided_days') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label for="expected-participants" class="ui-label">預計人數</label>
+                                <input id="expected-participants" name="expected_participants" type="number" min="2" max="30" x-model.number="expectedParticipants" x-bind:required="tripMode === 'guided'">
+                                @error('expected_participants') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
+                        <p class="mt-3 text-xs leading-5 text-emerald-800">計算方式：〈NT$4,000 × 天數＋NT$8,000 車費〉÷ 預計人數。實際費用以成行確認為準。</p>
                     </div>
 
                     <div>

@@ -12,6 +12,9 @@
         $wish->users_count >= 2 => '正在聚人',
         default => '等待共鳴',
     };
+    $guidedEstimate = $wish->homepage_group === 'guided' && $wish->guided_days && $wish->expected_participants
+        ? (int) ceil(((config('wishes.guide_daily_fee') * $wish->guided_days) + config('wishes.transport_fee')) / $wish->expected_participants)
+        : null;
 @endphp
 
 <article
@@ -95,6 +98,11 @@
                 {{ $routeModeLabel }}
             </span>
         @endif
+        @if ($wish->homepage_group === 'guided')
+            <span class="ui-chip-hope">請嚮導帶團</span>
+        @elseif ($wish->homepage_group === 'self')
+            <span class="ui-chip">自由成團</span>
+        @endif
     </div>
 
     <div class="mt-3 flex items-start justify-between gap-3">
@@ -124,6 +132,13 @@
         <p class="mt-3 rounded-2xl bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-600">
             {{ $wish->note }}
         </p>
+    @endif
+
+    @if ($guidedEstimate)
+        <div class="mt-3 flex items-center justify-between rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm">
+            <span class="text-emerald-900">{{ $wish->guided_days }} 天 · 預計 {{ $wish->expected_participants }} 人<br><span class="text-xs text-emerald-700">嚮導與車費均攤</span></span>
+            <span class="font-semibold text-emerald-800">約 NT${{ number_format($guidedEstimate) }}／人</span>
+        </div>
     @endif
 
     <div class="mt-4 flex items-center justify-between gap-3 border-t border-slate-100 pt-3">

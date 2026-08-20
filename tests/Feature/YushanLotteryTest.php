@@ -151,6 +151,36 @@ class YushanLotteryTest extends TestCase
         ]);
     }
 
+    public function test_user_can_create_a_guided_wish_with_shared_cost_inputs(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-07-09 08:00:00'));
+
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->post(route('trip-wishes.store'), [
+                'mountain' => '南湖大山',
+                'wished_date' => '2026-07-16',
+                'homepage_group' => 'guided',
+                'guided_days' => 2,
+                'expected_participants' => 8,
+                'redirect_to' => route('lotteries.yushan'),
+            ])
+            ->assertRedirect(route('lotteries.yushan'));
+
+        $this->assertDatabaseHas('trip_wishes', [
+            'mountain' => '南湖大山',
+            'homepage_group' => 'guided',
+            'guided_days' => 2,
+            'expected_participants' => 8,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('lotteries.yushan'))
+            ->assertSee('請嚮導帶團')
+            ->assertSee('約 NT$2,000／人');
+    }
+
     public function test_yushan_lottery_page_orders_by_date_and_paginates_after_five_items(): void
     {
         Carbon::setTestNow(Carbon::parse('2026-07-09 08:00:00'));

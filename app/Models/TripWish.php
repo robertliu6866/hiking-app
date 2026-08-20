@@ -15,10 +15,14 @@ class TripWish extends Model
         'route_mode',
         'note',
         'homepage_group',
+        'guided_days',
+        'expected_participants',
     ];
 
     protected $casts = [
         'wished_date' => 'date',
+        'guided_days' => 'integer',
+        'expected_participants' => 'integer',
     ];
 
     public function user(): BelongsTo
