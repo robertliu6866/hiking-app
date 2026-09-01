@@ -1,8 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="text-base font-semibold text-slate-900">我的揪團</h2>
-            <a href="{{ route('lotteries.yushan') }}" class="text-sm font-medium text-emerald-700">查看揪團池</a>
+            <h2 class="text-base font-semibold text-slate-900">我的許願</h2>
+            <a href="{{ route('lotteries.yushan') }}" class="text-sm font-medium text-emerald-700">查看許願</a>
         </div>
     </x-slot>
 
@@ -10,17 +10,17 @@
         <div class="page-container space-y-4">
             <section class="ui-card">
                 <p class="text-sm font-semibold text-emerald-700">會員中心</p>
-                <h1 class="mt-1 text-2xl font-semibold leading-tight text-slate-950">我的揪團</h1>
+                <h1 class="mt-1 text-2xl font-semibold leading-tight text-slate-950">我的許願</h1>
                 <p class="mt-2 text-sm leading-6 text-slate-500">
-                    這裡會列出你發起或表態同行的社群揪團。
+                    這裡會列出你發起或響應的登山許願。
                 </p>
             </section>
 
             <section class="space-y-3">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h2 class="text-base font-semibold text-slate-900">已表態的揪團</h2>
-                        <p class="mt-1 text-sm text-slate-500">你表態同行的揪團會顯示在這裡。</p>
+                        <h2 class="text-base font-semibold text-slate-900">已響應的願望</h2>
+                        <p class="mt-1 text-sm text-slate-500">你 +1 的登山願望會顯示在這裡。</p>
                     </div>
                 </div>
 
@@ -43,7 +43,7 @@
                             </div>
 
                             <span class="shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                                已表態
+                                已 +1
                             </span>
                         </div>
 
@@ -53,7 +53,7 @@
 
                         <div class="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
                             <div class="min-w-0">
-                                <div class="text-xs text-slate-500">一起表態的山友</div>
+                                <div class="text-xs text-slate-500">一起許願的山友</div>
                                 <div class="mt-2 flex items-center">
                                     @foreach ($wish->users->take(5) as $participant)
                                         <div class="-ml-1 first:ml-0">
@@ -67,13 +67,13 @@
                                 </div>
                             </div>
 
-                            <span class="text-xs text-slate-500">{{ $wish->users_count }} 人表態</span>
+                            <span class="text-xs text-slate-500">{{ $wish->users_count }} 人響應</span>
                         </div>
                     </article>
                 @empty
                     <div class="ui-empty">
-                        <div class="text-sm font-medium text-slate-900">尚未加入揪團</div>
-                        <p class="mt-1 text-sm text-slate-500">看到想去的山先表態同行，後續山友會顯示在這裡。</p>
+                        <div class="text-sm font-medium text-slate-900">尚未參加許願行程</div>
+                        <p class="mt-1 text-sm text-slate-500">看到想去的山先 +1，後續同行山友會顯示在這裡。</p>
                     </div>
                 @endforelse
             </section>

@@ -10,7 +10,6 @@ class TripWish extends Model
 {
     protected $fillable = [
         'user_id',
-        'host_user_id',
         'mountain',
         'wished_date',
         'route_mode',
@@ -31,23 +30,18 @@ class TripWish extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function host(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'host_user_id');
-    }
-
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
             ->wherePivot('status', 'joined')
-            ->withPivot(['status', 'willing_to_host'])
+            ->withPivot('status')
             ->withTimestamps();
     }
 
     public function allUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
-            ->withPivot(['status', 'willing_to_host'])
+            ->withPivot('status')
             ->withTimestamps();
     }
 }

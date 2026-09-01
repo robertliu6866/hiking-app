@@ -15,6 +15,7 @@ class TripWishController extends Controller
     public function store(Request $request)
     {
         $supportsRouteMode = Schema::hasColumn('trip_wishes', 'route_mode');
+        $supportsGuidedCosts = Schema::hasColumn('trip_wishes', 'guided_days');
         $minWishDate = Carbon::today()->addDays(5)->toDateString();
         $redirectTo = $request->input('redirect_to');
         $requiresFutureWishDate = is_string($redirectTo)
@@ -29,8 +30,9 @@ class TripWishController extends Controller
             ])),
             'route_mode' => ['nullable', 'in:single,traverse,custom'],
             'note' => ['nullable', 'string', 'max:500'],
-            'homepage_group' => ['nullable', 'in:self'],
-            'volunteer_host' => ['nullable', 'boolean'],
+            'homepage_group' => ['nullable', 'in:guided,self'],
+            'guided_days' => ['nullable', 'integer', 'min:1', 'max:14', 'required_if:homepage_group,guided'],
+            'expected_participants' => ['nullable', 'integer', 'min:2', 'max:30', 'required_if:homepage_group,guided'],
             'redirect_to' => ['nullable', 'url'],
         ]);
 
@@ -64,11 +66,17 @@ class TripWishController extends Controller
                 'mountain' => $validated['mountain'],
                 'wished_date' => $validated['wished_date'] ?? null,
                 'note' => $validated['note'] ?? null,
-                'homepage_group' => 'self',
+                'homepage_group' => $validated['homepage_group'] ?? null,
             ]);
 
             if ($supportsRouteMode) {
                 $wish->route_mode = $validated['route_mode'] ?? null;
+                $wish->save();
+            }
+
+            if ($supportsGuidedCosts && ($validated['homepage_group'] ?? null) === 'guided') {
+                $wish->guided_days = $validated['guided_days'];
+                $wish->expected_participants = $validated['expected_participants'];
                 $wish->save();
             }
 
@@ -78,10 +86,7 @@ class TripWishController extends Controller
         $wasJoined = $wish->users()->whereKey($request->user()->id)->exists();
 
         $wish->allUsers()->syncWithoutDetaching([
-            $request->user()->id => [
-                'status' => 'joined',
-                'willing_to_host' => $request->boolean('volunteer_host'),
-            ],
+            $request->user()->id => ['status' => 'joined'],
         ]);
 
         if (! $wish->wasRecentlyCreated && ! $wasJoined) {

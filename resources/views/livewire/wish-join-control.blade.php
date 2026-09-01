@@ -1,8 +1,5 @@
 @php
     $hasJoined = $wish->users->contains(auth()->id());
-    $currentUser = $wish->users->firstWhere('id', auth()->id());
-    $hasVolunteered = (bool) ($currentUser?->pivot?->willing_to_host);
-    $volunteerCount = $wish->users->filter(fn ($user) => $user->pivot->willing_to_host)->count();
     $otherUsers = $wish->users->where('id', '!=', auth()->id())->take(6);
     $routeModeLabel = match ($wish->route_mode) {
         'single' => '單攻',
@@ -15,6 +12,9 @@
         $wish->users_count >= 2 => '正在聚人',
         default => '等待共鳴',
     };
+    $guidedEstimate = $wish->homepage_group === 'guided' && $wish->guided_days && $wish->expected_participants
+        ? (int) ceil(((config('wishes.guide_daily_fee') * $wish->guided_days) + config('wishes.transport_fee')) / $wish->expected_participants)
+        : null;
 @endphp
 
 <article
@@ -98,12 +98,10 @@
                 {{ $routeModeLabel }}
             </span>
         @endif
-        @if ($wish->host)
-            <span class="ui-chip-hope">主揪 {{ $wish->host->name }}</span>
-        @elseif ($volunteerCount)
-            <span class="ui-chip">{{ $volunteerCount }} 人願意主揪</span>
-        @else
-            <span class="ui-chip">尚缺主揪</span>
+        @if ($wish->homepage_group === 'guided')
+            <span class="ui-chip-hope">請嚮導帶團</span>
+        @elseif ($wish->homepage_group === 'self')
+            <span class="ui-chip">自由成團</span>
         @endif
     </div>
 
@@ -136,9 +134,19 @@
         </p>
     @endif
 
-    <div class="mt-3 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-900">
-        <span class="font-semibold">免費社群揪團。</span> 主揪不收帶團費；交通、門票或住宿等支出，由參加者實支自付。
-    </div>
+    @if ($guidedEstimate)
+        <div class="mt-3 grid grid-cols-2 divide-x divide-emerald-100 rounded-2xl border border-emerald-100 bg-emerald-50 text-sm">
+            <div class="px-4 py-3">
+                <div class="text-xs font-medium text-emerald-700">揪團人數</div>
+                <div class="mt-1 font-semibold text-emerald-950">{{ $wish->expected_participants }} 人 <span class="text-xs font-normal text-emerald-700">· {{ $wish->guided_days }} 天</span></div>
+            </div>
+            <div class="px-4 py-3">
+                <div class="text-xs font-medium text-emerald-700">每人預估費用</div>
+                <div class="mt-1 font-semibold text-emerald-950">NT${{ number_format($guidedEstimate) }}</div>
+                <div class="mt-0.5 text-xs text-emerald-700">嚮導＋車費均攤</div>
+            </div>
+        </div>
+    @endif
 
     <div class="mt-4 flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
         <div class="flex min-h-7 items-center">
@@ -193,23 +201,6 @@
 
         </div>
     </div>
-
-    @if (! $wish->host)
-        <div class="mt-3 flex flex-wrap items-center gap-2">
-            @if ($hasJoined)
-                <button type="button" wire:click="toggleHostVolunteer" class="ui-btn-ghost min-h-9 px-3 py-2 text-xs">
-                    {{ $hasVolunteered ? '取消主揪登記' : '我願意主揪' }}
-                </button>
-            @endif
-
-            @if ($wish->user_id === auth()->id() && $volunteerCount)
-                <button type="button" wire:click="drawHost" wire:confirm="確定要從 {{ $volunteerCount }} 位自願者中公開抽出主揪嗎？" class="ui-btn-primary min-h-9 px-3 py-2 text-xs">
-                    公開抽主揪
-                </button>
-            @endif
-        </div>
-        <p class="mt-2 text-xs leading-5 text-slate-500">僅從自願且已表態同行的山友中抽籤；抽中後可再協調行前細節。</p>
-    @endif
 
     <div
         x-cloak
