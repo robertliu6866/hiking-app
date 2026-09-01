@@ -203,12 +203,17 @@
 
                         <div @if (! $supportsRouteMode) class="hidden" @endif>
                             <label for="wish-route-mode" class="ui-label">路線型態</label>
-                            <select id="wish-route-mode" name="route_mode" x-model="routeMode">
-                                <option value="">尚未決定</option>
-                                <option value="single" @selected(old('route_mode') === 'single')>單攻</option>
-                                <option value="traverse" @selected(old('route_mode') === 'traverse')>縱走</option>
-                                <option value="custom" @selected(old('route_mode') === 'custom')>其他</option>
-                            </select>
+                            <div class="relative min-w-0">
+                                <select id="wish-route-mode" name="route_mode" x-model="routeMode" class="w-full appearance-none pr-10">
+                                    <option value="">尚未決定</option>
+                                    <option value="single" @selected(old('route_mode') === 'single')>單攻</option>
+                                    <option value="traverse" @selected(old('route_mode') === 'traverse')>縱走</option>
+                                    <option value="custom" @selected(old('route_mode') === 'custom')>其他</option>
+                                </select>
+                                <svg class="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                    <path d="m5 7.5 5 5 5-5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" />
+                                </svg>
+                            </div>
                             @error('route_mode') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                         </div>
                     </div>
