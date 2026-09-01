@@ -15,6 +15,9 @@
     $guidedEstimate = $wish->homepage_group === 'guided' && $wish->guided_days && $wish->expected_participants
         ? (int) ceil(((config('wishes.guide_daily_fee') * $wish->guided_days) + config('wishes.transport_fee')) / $wish->expected_participants)
         : null;
+    $selfTransportShare = $wish->homepage_group === 'self' && $wish->route_mode === 'single' && $wish->expected_participants >= 2
+        ? (int) ceil(config('wishes.transport_fee') / ($wish->expected_participants - 1))
+        : null;
 @endphp
 
 <article
@@ -144,6 +147,20 @@
                 <div class="text-xs font-medium text-emerald-700">每人預估費用</div>
                 <div class="mt-1 font-semibold text-emerald-950">NT${{ number_format($guidedEstimate) }}</div>
                 <div class="mt-0.5 text-xs text-emerald-700">嚮導＋車費均攤</div>
+            </div>
+        </div>
+    @endif
+
+    @if ($selfTransportShare)
+        <div class="mt-3 grid grid-cols-2 divide-x divide-amber-100 rounded-2xl border border-amber-100 bg-amber-50 text-sm">
+            <div class="px-4 py-3">
+                <div class="text-xs font-medium text-amber-700">預計共乘</div>
+                <div class="mt-1 font-semibold text-amber-950">{{ $wish->expected_participants }} 人 <span class="text-xs font-normal text-amber-700">含主揪</span></div>
+            </div>
+            <div class="px-4 py-3">
+                <div class="text-xs font-medium text-amber-700">每位同行者預估</div>
+                <div class="mt-1 font-semibold text-amber-950">NT${{ number_format($selfTransportShare) }}</div>
+                <div class="mt-0.5 text-xs text-amber-700">主揪免車資 · 整車 NT$8,000</div>
             </div>
         </div>
     @endif

@@ -183,6 +183,29 @@ class YushanLotteryTest extends TestCase
             ->assertSee('NT$2,000');
     }
 
+    public function test_self_organized_single_attack_shows_car_share_and_host_is_free(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-07-09 08:00:00'));
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->post(route('trip-wishes.store'), [
+                'mountain' => '合歡北峰',
+                'wished_date' => '2026-07-16',
+                'route_mode' => 'single',
+                'homepage_group' => 'self',
+                'expected_participants' => 5,
+                'redirect_to' => route('lotteries.yushan'),
+            ])
+            ->assertRedirect(route('lotteries.yushan'));
+
+        $this->actingAs($user)
+            ->get(route('lotteries.yushan'))
+            ->assertSee('每位同行者預估')
+            ->assertSee('NT$2,000')
+            ->assertSee('主揪免車資');
+    }
+
     public function test_yushan_lottery_page_orders_by_date_and_paginates_after_five_items(): void
     {
         Carbon::setTestNow(Carbon::parse('2026-07-09 08:00:00'));

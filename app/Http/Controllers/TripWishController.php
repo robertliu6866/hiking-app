@@ -32,7 +32,7 @@ class TripWishController extends Controller
             'note' => ['nullable', 'string', 'max:500'],
             'homepage_group' => ['nullable', 'in:guided,self'],
             'guided_days' => ['nullable', 'integer', 'min:1', 'max:14', 'required_if:homepage_group,guided'],
-            'expected_participants' => ['nullable', 'integer', 'min:2', 'max:30', 'required_if:homepage_group,guided'],
+            'expected_participants' => ['nullable', 'integer', 'min:2', 'max:30', 'required_if:homepage_group,guided,self'],
             'redirect_to' => ['nullable', 'url'],
         ]);
 
@@ -74,8 +74,8 @@ class TripWishController extends Controller
                 $wish->save();
             }
 
-            if ($supportsGuidedCosts && ($validated['homepage_group'] ?? null) === 'guided') {
-                $wish->guided_days = $validated['guided_days'];
+            if ($supportsGuidedCosts && in_array(($validated['homepage_group'] ?? null), ['guided', 'self'], true)) {
+                $wish->guided_days = ($validated['homepage_group'] ?? null) === 'guided' ? $validated['guided_days'] : null;
                 $wish->expected_participants = $validated['expected_participants'];
                 $wish->save();
             }

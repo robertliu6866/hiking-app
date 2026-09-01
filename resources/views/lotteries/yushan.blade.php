@@ -15,6 +15,7 @@
             suggestionOpen: false,
             highlightedIndex: 0,
             tripMode: @js(old('homepage_group', 'self')),
+            routeMode: @js(old('route_mode', '')),
             guidedDays: @js((int) old('guided_days', 1)),
             expectedParticipants: @js((int) old('expected_participants', 8)),
             guideDailyFee: @js(config('wishes.guide_daily_fee')),
@@ -24,6 +25,11 @@
                 const people = Math.max(1, Number(this.expectedParticipants) || 1);
 
                 return Math.ceil(((this.guideDailyFee * days) + this.transportFee) / people);
+            },
+            get selfTransportShare() {
+                const people = Math.max(2, Number(this.expectedParticipants) || 2);
+
+                return Math.ceil(this.transportFee / (people - 1));
             },
             get filteredSuggestions() {
                 const keyword = this.query.trim().toLowerCase();
@@ -197,7 +203,7 @@
 
                         <div @if (! $supportsRouteMode) class="hidden" @endif>
                             <label for="wish-route-mode" class="ui-label">路線型態</label>
-                            <select id="wish-route-mode" name="route_mode">
+                            <select id="wish-route-mode" name="route_mode" x-model="routeMode">
                                 <option value="">尚未決定</option>
                                 <option value="single" @selected(old('route_mode') === 'single')>單攻</option>
                                 <option value="traverse" @selected(old('route_mode') === 'traverse')>縱走</option>
@@ -245,6 +251,22 @@
                             </div>
                         </div>
                         <p class="mt-3 text-xs leading-5 text-emerald-800">計算方式：〈NT$4,000 × 天數＋NT$8,000 車費〉÷ 揪團人數。實際費用以成行確認為準。</p>
+                    </div>
+
+                    <div x-cloak x-show="tripMode === 'self' && routeMode === 'single'" x-transition class="rounded-2xl border border-amber-100 bg-amber-50 p-4">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <h4 class="text-sm font-semibold text-amber-950">單攻共乘誘因</h4>
+                                <p class="mt-1 text-xs leading-5 text-amber-800">整車車資預設 NT$8,000；主揪免車資，其餘同行者均分。</p>
+                            </div>
+                            <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-amber-800">每位同行者預估 <span x-text="'NT$' + selfTransportShare.toLocaleString()"></span></span>
+                        </div>
+                        <div class="mt-4">
+                            <label for="self-expected-participants" class="ui-label">預計總人數 <span class="font-normal text-slate-400">（含主揪）</span></label>
+                            <input id="self-expected-participants" name="expected_participants" type="number" min="2" max="30" x-model.number="expectedParticipants" x-bind:required="tripMode === 'self' && routeMode === 'single'">
+                            @error('expected_participants') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                        </div>
+                        <p class="mt-3 text-xs leading-5 text-amber-800">計算方式：NT$8,000 ÷（總人數 − 1 位主揪）。實際金額依最後成團人數調整。</p>
                     </div>
 
                     <div>
