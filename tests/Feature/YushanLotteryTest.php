@@ -201,7 +201,8 @@ class YushanLotteryTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('lotteries.yushan'))
-            ->assertSee('每位同行者預估')
+            ->assertSee('單攻整車車資')
+            ->assertSee('4 位同行者均分')
             ->assertSee('NT$2,000')
             ->assertSee('主揪免車資');
     }

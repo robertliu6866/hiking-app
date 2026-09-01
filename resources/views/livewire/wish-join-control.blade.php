@@ -154,13 +154,14 @@
     @if ($selfTransportShare)
         <div class="mt-3 grid grid-cols-2 divide-x divide-amber-100 rounded-2xl border border-amber-100 bg-amber-50 text-sm">
             <div class="px-4 py-3">
-                <div class="text-xs font-medium text-amber-700">預計共乘</div>
-                <div class="mt-1 font-semibold text-amber-950">{{ $wish->expected_participants }} 人 <span class="text-xs font-normal text-amber-700">含主揪</span></div>
+                <div class="text-xs font-medium text-amber-700">單攻整車車資</div>
+                <div class="mt-1 font-semibold text-amber-950">NT$8,000</div>
+                <div class="mt-0.5 text-xs text-amber-700">主揪免車資</div>
             </div>
             <div class="px-4 py-3">
-                <div class="text-xs font-medium text-amber-700">每位同行者預估</div>
-                <div class="mt-1 font-semibold text-amber-950">NT${{ number_format($selfTransportShare) }}</div>
-                <div class="mt-0.5 text-xs text-amber-700">主揪免車資 · 整車 NT$8,000</div>
+                <div class="text-xs font-medium text-amber-700">{{ $wish->expected_participants - 1 }} 位同行者均分</div>
+                <div class="mt-1 font-semibold text-amber-950">每人 NT${{ number_format($selfTransportShare) }}</div>
+                <div class="mt-0.5 text-xs text-amber-700">總共 {{ $wish->expected_participants }} 人，含主揪</div>
             </div>
         </div>
     @endif
