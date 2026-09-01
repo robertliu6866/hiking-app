@@ -55,4 +55,25 @@ class WishBoardTest extends TestCase
             ->assertSee('雪山')
             ->assertSee('下週想找人一起雪山單攻');
     }
+
+    public function test_wish_owner_can_draw_a_host_only_from_volunteers(): void
+    {
+        $owner = User::factory()->create();
+        $volunteer = User::factory()->create(['name' => '自願山友']);
+        $participant = User::factory()->create();
+        $wish = TripWish::create([
+            'user_id' => $owner->id,
+            'mountain' => '北大武山',
+            'wished_date' => now()->addWeek()->toDateString(),
+        ]);
+        $wish->allUsers()->attach($volunteer->id, ['status' => 'joined', 'willing_to_host' => true]);
+        $wish->allUsers()->attach($participant->id, ['status' => 'joined', 'willing_to_host' => false]);
+
+        $this->actingAs($owner);
+
+        Livewire::test(WishJoinControl::class, ['wishId' => $wish->id])
+            ->call('drawHost');
+
+        $this->assertSame($volunteer->id, $wish->fresh()->host_user_id);
+    }
 }

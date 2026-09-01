@@ -119,9 +119,9 @@ class YushanLotteryTest extends TestCase
             ->get(route('lotteries.yushan'))
             ->assertOk()
             ->assertSee('找同樣想上山的人')
-            ->assertSee('發起許願')
-            ->assertSee('發布許願')
-            ->assertSee('大家正在許願')
+            ->assertSee('發起揪團')
+            ->assertSee('發布揪團')
+            ->assertSee('大家正在揪團')
             ->assertSee('雪山主峰')
             ->assertDontSee('玉山主峰')
             ->assertSee('2026/07/14');
@@ -151,7 +151,7 @@ class YushanLotteryTest extends TestCase
         ]);
     }
 
-    public function test_user_can_create_a_guided_wish_with_shared_cost_inputs(): void
+    public function test_user_can_create_a_free_community_group_and_volunteer_to_host(): void
     {
         Carbon::setTestNow(Carbon::parse('2026-07-09 08:00:00'));
 
@@ -161,26 +161,25 @@ class YushanLotteryTest extends TestCase
             ->post(route('trip-wishes.store'), [
                 'mountain' => '南湖大山',
                 'wished_date' => '2026-07-16',
-                'homepage_group' => 'guided',
-                'guided_days' => 2,
-                'expected_participants' => 8,
+                'homepage_group' => 'self',
+                'volunteer_host' => true,
                 'redirect_to' => route('lotteries.yushan'),
             ])
             ->assertRedirect(route('lotteries.yushan'));
 
         $this->assertDatabaseHas('trip_wishes', [
             'mountain' => '南湖大山',
-            'homepage_group' => 'guided',
-            'guided_days' => 2,
-            'expected_participants' => 8,
+            'homepage_group' => 'self',
         ]);
+
+        $wish = TripWish::where('mountain', '南湖大山')->firstOrFail();
+        $this->assertTrue((bool) $wish->allUsers()->whereKey($user->id)->firstOrFail()->pivot->willing_to_host);
 
         $this->actingAs($user)
             ->get(route('lotteries.yushan'))
-            ->assertSee('請嚮導帶團')
-            ->assertSee('揪團人數')
-            ->assertSee('每人預估費用')
-            ->assertSee('NT$2,000');
+            ->assertSee('免費社群揪團')
+            ->assertSee('1 人願意主揪')
+            ->assertSee('公開抽主揪');
     }
 
     public function test_yushan_lottery_page_orders_by_date_and_paginates_after_five_items(): void

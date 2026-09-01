@@ -1,8 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="text-base font-semibold text-slate-900">登山許願</h2>
-            <a href="{{ route('dashboard') }}" class="text-sm text-slate-500">我的許願</a>
+            <h2 class="text-base font-semibold text-slate-900">揪團池</h2>
+            <a href="{{ route('dashboard') }}" class="text-sm text-slate-500">我的揪團</a>
         </div>
     </x-slot>
 
@@ -14,17 +14,6 @@
             suggestions: @js($mountainSuggestions),
             suggestionOpen: false,
             highlightedIndex: 0,
-            tripMode: @js(old('homepage_group', 'self')),
-            guidedDays: @js((int) old('guided_days', 1)),
-            expectedParticipants: @js((int) old('expected_participants', 8)),
-            guideDailyFee: @js(config('wishes.guide_daily_fee')),
-            transportFee: @js(config('wishes.transport_fee')),
-            get estimatedPerPerson() {
-                const days = Math.max(1, Number(this.guidedDays) || 1);
-                const people = Math.max(1, Number(this.expectedParticipants) || 1);
-
-                return Math.ceil(((this.guideDailyFee * days) + this.transportFee) / people);
-            },
             get filteredSuggestions() {
                 const keyword = this.query.trim().toLowerCase();
 
@@ -62,9 +51,9 @@
             <section class="overflow-hidden rounded-3xl bg-[linear-gradient(135deg,#064e3b_0%,#047857_58%,#34d399_100%)] p-5 text-white shadow-sm shadow-emerald-200">
                 <div class="flex items-start justify-between gap-4">
                     <div>
-                        <span class="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white">許願看板</span>
+                        <span class="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white">免費社群揪團</span>
                         <h1 class="mt-3 text-2xl font-semibold leading-tight">找同樣想上山的人</h1>
-                        <p class="mt-2 text-sm leading-6 text-emerald-50">每個許願都是一趟想出發的行程，看到想去的山就 +1。</p>
+                        <p class="mt-2 text-sm leading-6 text-emerald-50">先表態同行；願意主揪的人可自願登記，沒有指定人選時公開抽籤。</p>
                     </div>
                     <div class="shrink-0 rounded-2xl bg-white/15 px-3 py-2 text-center backdrop-blur-sm">
                         <div class="text-lg font-semibold">{{ $totalParticipants }}</div>
@@ -76,7 +65,7 @@
             <section class="space-y-3">
                 <div class="flex items-end justify-between px-1">
                     <div>
-                        <h3 class="text-base font-semibold text-slate-950">大家正在許願</h3>
+                        <h3 class="text-base font-semibold text-slate-950">大家正在揪團</h3>
                         <p class="mt-1 text-xs text-slate-500">{{ $totalMountains }} 個想去的地方 · 依出發日期排列</p>
                     </div>
                     @if ($nextWishDate)
@@ -92,9 +81,9 @@
                     ], key('popular-lottery-'.$wish->id))
                 @empty
                     <div class="ui-empty">
-                        <div class="text-sm font-medium text-slate-900">還沒有人發起許願</div>
+                        <div class="text-sm font-medium text-slate-900">還沒有人發起揪團</div>
                         <p class="mt-1 text-sm text-slate-500">成為第一位，告訴山友你想去哪裡。</p>
-                        <button type="button" class="ui-btn-primary mt-4" x-on:click="createOpen = true">發起第一個許願</button>
+                        <button type="button" class="ui-btn-primary mt-4" x-on:click="createOpen = true">發起第一個揪團</button>
                     </div>
                 @endforelse
 
@@ -113,7 +102,7 @@
                 x-on:click="createOpen = true"
             >
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" /></svg>
-                發起許願
+                發起揪團
             </button>
         </div>
 
@@ -138,7 +127,7 @@
                     <div class="mx-auto h-1.5 w-10 rounded-full bg-slate-200"></div>
                     <div class="mt-3 flex items-start justify-between gap-3">
                         <div>
-                            <p class="text-xs font-semibold text-emerald-700">發起新願望</p>
+                            <p class="text-xs font-semibold text-emerald-700">發起新揪團</p>
                             <h3 id="create-wish-title" class="mt-1 text-lg font-semibold text-slate-950">你想去哪座山？</h3>
                         </div>
                         <button type="button" class="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500" x-on:click="createOpen = false" aria-label="關閉發起許願表單">
@@ -147,7 +136,7 @@
                     </div>
                 </div>
 
-                <p class="mt-4 text-sm leading-6 text-slate-500">填好山名與日期，其他山友就能直接找到你並 +1 響應。</p>
+                <p class="mt-4 text-sm leading-6 text-slate-500">填好山名與日期，山友可以表態同行，也可自願擔任主揪。</p>
 
                 <form method="POST" action="{{ route('trip-wishes.store') }}" class="mt-5 space-y-4">
                     @csrf
@@ -207,45 +196,11 @@
                         </div>
                     </div>
 
-                    <fieldset>
-                        <legend class="ui-label">這趟怎麼成行？</legend>
-                        <div class="grid grid-cols-2 gap-3">
-                            <label class="cursor-pointer rounded-2xl border p-3 transition" :class="tripMode === 'guided' ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-white'">
-                                <input class="sr-only" type="radio" name="homepage_group" value="guided" x-model="tripMode">
-                                <span class="block text-sm font-semibold text-slate-900">請嚮導帶團</span>
-                                <span class="mt-1 block text-xs leading-5 text-slate-500">費用依天數與人數均攤</span>
-                            </label>
-                            <label class="cursor-pointer rounded-2xl border p-3 transition" :class="tripMode === 'self' ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-white'">
-                                <input class="sr-only" type="radio" name="homepage_group" value="self" x-model="tripMode">
-                                <span class="block text-sm font-semibold text-slate-900">自由成團</span>
-                                <span class="mt-1 block text-xs leading-5 text-slate-500">成行時抽籤選協調人</span>
-                            </label>
-                        </div>
-                        @error('homepage_group') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                    </fieldset>
-
-                    <div x-cloak x-show="tripMode === 'guided'" x-transition class="rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
-                        <div class="flex items-start justify-between gap-3">
-                            <div>
-                                <h4 class="text-sm font-semibold text-emerald-950">嚮導與車費均攤</h4>
-                                <p class="mt-1 text-xs leading-5 text-emerald-800">嚮導 NT$4,000／天，車費 NT$8,000／車。</p>
-                            </div>
-                            <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-emerald-700">預估 <span x-text="'NT$' + estimatedPerPerson.toLocaleString()"></span>／人</span>
-                        </div>
-                        <div class="mt-4 grid grid-cols-2 gap-3">
-                            <div>
-                                <label for="guided-days" class="ui-label">行程天數</label>
-                                <input id="guided-days" name="guided_days" type="number" min="1" max="14" x-model.number="guidedDays" x-bind:required="tripMode === 'guided'">
-                                @error('guided_days') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                            </div>
-                            <div>
-                                <label for="expected-participants" class="ui-label">揪團人數</label>
-                                <input id="expected-participants" name="expected_participants" type="number" min="2" max="30" x-model.number="expectedParticipants" x-bind:required="tripMode === 'guided'">
-                                @error('expected_participants') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                            </div>
-                        </div>
-                        <p class="mt-3 text-xs leading-5 text-emerald-800">計算方式：〈NT$4,000 × 天數＋NT$8,000 車費〉÷ 揪團人數。實際費用以成行確認為準。</p>
-                    </div>
+                    <input type="hidden" name="homepage_group" value="self">
+                    <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
+                        <input name="volunteer_host" value="1" type="checkbox" class="mt-1 rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500" @checked(old('volunteer_host'))>
+                        <span><span class="block text-sm font-semibold text-emerald-950">我願意擔任主揪</span><span class="mt-1 block text-xs leading-5 text-emerald-800">主揪負責協調集合與行前資訊，不收帶團費；若有多人自願，社群可公開抽籤決定。</span></span>
+                    </label>
 
                     <div>
                         <label for="wish-note" class="ui-label">補充說明 <span class="font-normal text-slate-400">（選填）</span></label>
@@ -253,7 +208,7 @@
                         @error('note') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                     </div>
 
-                    <button type="submit" class="ui-btn-primary w-full">發布許願</button>
+                    <button type="submit" class="ui-btn-primary w-full">發布揪團</button>
                 </form>
             </div>
         </section>

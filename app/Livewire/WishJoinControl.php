@@ -19,6 +19,40 @@ class WishJoinControl extends Component
 
     public bool $simpleJoinLabel = false;
 
+    #[Renderless]
+    public function toggleHostVolunteer(): void
+    {
+        $wish = $this->wish();
+        $userId = auth()->id();
+
+        abort_unless($wish->users->contains($userId), 422, '請先表態同行，才能登記主揪。');
+
+        $isVolunteer = (bool) optional($wish->users->firstWhere('id', $userId))->pivot?->willing_to_host;
+        $wish->allUsers()->updateExistingPivot($userId, ['willing_to_host' => ! $isVolunteer]);
+
+        $this->dispatch('wish-notice', wishId: $wish->id, message: $isVolunteer ? '已取消主揪登記' : '已登記願意主揪');
+    }
+
+    #[Renderless]
+    public function drawHost(): void
+    {
+        $wish = $this->wish();
+
+        abort_unless($wish->user_id === auth()->id(), 403);
+        abort_if($wish->host_user_id, 422, '此團已有主揪。');
+
+        $host = $wish->allUsers()
+            ->wherePivot('status', 'joined')
+            ->wherePivot('willing_to_host', true)
+            ->inRandomOrder()
+            ->first();
+
+        abort_if(! $host, 422, '目前還沒有人自願主揪。');
+
+        $wish->update(['host_user_id' => $host->id]);
+        $this->dispatch('wish-notice', wishId: $wish->id, message: '已公開抽出主揪：'.$host->name);
+    }
+
     public function mount(int $wishId): void
     {
         $this->wishId = $wishId;
@@ -58,7 +92,7 @@ class WishJoinControl extends Component
 
     private function wish(): TripWish
     {
-        return TripWish::with(['user', 'users'])
+        return TripWish::with(['user', 'host', 'users'])
             ->withCount('users')
             ->findOrFail($this->wishId);
     }

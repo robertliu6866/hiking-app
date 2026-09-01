@@ -6,10 +6,10 @@
 
         <div class="flex items-center gap-3 text-sm">
             <a href="{{ route('lotteries.yushan') }}" class="font-medium text-slate-700">
-                許願
+                揪團池
             </a>
             <a href="{{ route('dashboard') }}" class="font-medium text-slate-700">
-                我的許願
+                我的揪團
             </a>
             <a href="{{ route('member-center') }}" class="font-medium text-slate-700">
                 會員
