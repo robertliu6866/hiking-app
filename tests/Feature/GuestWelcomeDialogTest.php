@@ -14,10 +14,11 @@ class GuestWelcomeDialogTest extends TestCase
     {
         $this->get('/')
             ->assertOk()
-            ->assertSee('我們為什麼成立？')
-            ->assertSee('陌生揪團最大的問題，不是找不到人，而是找不到可以長期一起走的人。')
-            ->assertSee('實名制｜信用累積｜公平分工｜品質山友')
-            ->assertSee('不是找人共乘，而是找到值得長期一起登山的人。')
+            ->assertSee('喜歡爬山，所以一直回來')
+            ->assertSee('只因為爬山帶來的平靜，以及下山後，那種重新充滿活力的感覺。')
+            ->assertSee('當你這週想上山，就能找到適合一起出發的夥伴。')
+            ->assertSee('找到對的夥伴，方便出門。')
+            ->assertSee('快樂上山，安全下山。')
             ->assertSee('我懂了，開始找山友');
     }
 
@@ -26,6 +27,6 @@ class GuestWelcomeDialogTest extends TestCase
         $this->actingAs(User::factory()->create())
             ->get(route('lotteries.yushan'))
             ->assertOk()
-            ->assertSee('我們為什麼成立？');
+            ->assertSee('喜歡爬山，所以一直回來');
     }
 }
