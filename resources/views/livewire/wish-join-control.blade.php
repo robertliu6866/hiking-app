@@ -259,6 +259,27 @@
                         <p class="mt-1 text-xl font-semibold text-emerald-900">{{ $costs['total'] !== null ? 'NT$'.number_format($costs['total']) : 'NT$'.number_format($costs['guide']).' ＋車資另攤' }}</p>
                     </div>
                     <p class="mt-3 text-xs leading-5 text-slate-500">嚮導費每人每趟固定 NT${{ number_format($costs['guide']) }}，不隨天數增加。車資為預估，依實際報價與成團人數調整；住宿、餐食及其他費用若有，另由主揪說明。</p>
+                    <div class="mt-4 border-t border-emerald-100 pt-4">
+                        <h4 class="text-sm font-semibold text-emerald-900">嚮導會協助哪些事？</h4>
+                        <dl class="mt-3 space-y-4">
+                            <div>
+                                <dt class="text-sm font-semibold text-slate-800">領隊安全回報</dt>
+                                <dd class="mt-1 text-sm leading-6 text-slate-500">出發、重要路段與下山時確認隊伍狀況，依行前約定向留守聯絡人回報。</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-semibold text-slate-800">隊員照顧</dt>
+                                <dd class="mt-1 text-sm leading-6 text-slate-500">集合點名、留意隊員體力與行進狀況，協調步調、休息及前後隊照應。</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-semibold text-slate-800">擔任入山領隊責任</dt>
+                                <dd class="mt-1 text-sm leading-6 text-slate-500">擔任行程領隊，行前確認入山與入園安排、路線及隊員名單，帶領隊伍並協調現場事項。</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-semibold text-slate-800">安全控管</dt>
+                                <dd class="mt-1 text-sm leading-6 text-slate-500">行前確認天候、路況與裝備，掌握行程及折返時間；遇到風險時協調調整路線、撤退與緊急聯繫。</dd>
+                            </div>
+                        </dl>
+                    </div>
                 </section>
 
                 <section class="rounded-2xl bg-white p-4" aria-label="已參加成員列表">
