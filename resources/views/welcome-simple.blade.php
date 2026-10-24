@@ -28,6 +28,17 @@
                     發布許願就是發起一趟想去的行程；加入會員後即可發布或 +1 響應。
                 </p>
 
+                <form method="GET" action="{{ route('lotteries.yushan') }}" class="mt-5 rounded-2xl border border-emerald-100 bg-white p-4">
+                    <label for="guest-trip-search" class="ui-label">找符合需求的行程</label>
+                    <input id="guest-trip-search" name="q" type="search" maxlength="100" placeholder="輸入山名或主揪" class="min-h-11 w-full rounded-2xl border-slate-200 px-4 py-3 text-sm focus:border-emerald-400 focus:ring-emerald-100">
+                    <button type="submit" class="ui-btn-primary mt-3 w-full">登入並尋找行程</button>
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        <a href="{{ route('lotteries.yushan', ['duration' => 'single']) }}" class="ui-chip">找單攻團</a>
+                        <a href="{{ route('lotteries.yushan', ['duration' => 'overnight']) }}" class="ui-chip">找過夜團</a>
+                    </div>
+                    <p class="mt-3 text-xs leading-5 text-slate-500">登入後可依月份、行程類型與成團方式篩選。</p>
+                </form>
+
                 <div class="mt-5 space-y-3">
                     @forelse ($wishes as $wish)
                         @php

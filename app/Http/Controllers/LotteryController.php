@@ -6,6 +6,7 @@ use App\Models\TripWish;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\Rule;
 
 class LotteryController extends Controller
 {
@@ -17,16 +18,59 @@ class LotteryController extends Controller
             ->whereNotNull('wished_date')
             ->whereDate('wished_date', '>=', $minWishDate);
 
-        $wishes = (clone $eligibleWishes)
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:100'],
+            'duration' => ['nullable', Rule::in(['single', 'overnight'])],
+            'month' => ['nullable', 'date_format:Y-m'],
+            'group' => ['nullable', Rule::in(['self', 'guided'])],
+            'sort' => ['nullable', Rule::in(['date', 'popular'])],
+        ]);
+        $filters['q'] = trim($filters['q'] ?? '');
+        $hasFilters = collect($filters)->except('sort')->filter()->isNotEmpty();
+        $availableMonths = (clone $eligibleWishes)->orderBy('wished_date')
+            ->pluck('wished_date')->map(fn ($date) => Carbon::parse($date)->format('Y-m'))
+            ->unique()->values();
+        $filteredWishes = clone $eligibleWishes;
+
+        if ($filters['q'] !== '') {
+            // Treat LIKE wildcards as literal characters in search terms.
+            $keyword = '%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $filters['q']).'%';
+            $filteredWishes->where(function ($query) use ($keyword) {
+                $query->whereRaw("mountain LIKE ? ESCAPE '!'", [$keyword])
+                    ->orWhereHas('user', fn ($user) => $user->whereRaw("name LIKE ? ESCAPE '!'", [$keyword]));
+            });
+        }
+        if (! empty($filters['month'])) {
+            $month = Carbon::createFromFormat('!Y-m', $filters['month']);
+            $filteredWishes->whereDate('wished_date', '>=', $month->toDateString())
+                ->whereDate('wished_date', '<=', $month->endOfMonth()->toDateString());
+        }
+        if (! empty($filters['duration'])) {
+            if ($filters['duration'] === 'overnight') {
+                $filteredWishes->where('guided_days', '>=', 2);
+            } else {
+                $filteredWishes->where('route_mode', 'single')
+                    ->where(fn ($query) => $query->whereNull('guided_days')->orWhere('guided_days', '<=', 1));
+            }
+        }
+        if (! empty($filters['group'])) {
+            $filteredWishes->where('homepage_group', $filters['group']);
+        }
+
+        $wishQuery = (clone $filteredWishes)
             ->with(['user', 'users'])
-            ->withCount('users')
+            ->withCount('users');
+        if (($filters['sort'] ?? 'date') === 'popular') {
+            $wishQuery->orderByDesc('users_count');
+        }
+        $wishes = $wishQuery
             ->orderBy('wished_date')
             ->orderByDesc('users_count')
             ->orderByDesc('created_at')
             ->paginate(5)
             ->withQueryString();
 
-        $summaryWishes = (clone $eligibleWishes)
+        $summaryWishes = (clone $filteredWishes)
             ->withCount('users')
             ->get();
 
@@ -58,6 +102,9 @@ class LotteryController extends Controller
             'mountainSuggestions' => $mountainSuggestions,
             'minWishDate' => $minWishDate,
             'supportsRouteMode' => $supportsRouteMode,
+            'filters' => $filters,
+            'hasFilters' => $hasFilters,
+            'availableMonths' => $availableMonths,
         ]);
     }
 }

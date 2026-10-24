@@ -90,13 +90,16 @@
     x-on:wish-join-updated.window="syncFromServer($event.detail)"
 >
     <div class="flex flex-wrap items-center gap-2">
+        @if ($wish->guided_days >= 2)
+            <span class="ui-chip-hope">{{ $wish->guided_days == 2 ? '兩天一夜' : $wish->guided_days.' 天行程' }}</span>
+        @endif
         <span class="ui-chip-hope">
             {{ $wishSignal }}
         </span>
         <span class="ui-chip">
             {{ $wish->wished_date ? $wish->wished_date->format('Y/m/d') : '日期彈性' }}
         </span>
-        @if ($routeModeLabel)
+        @if ($routeModeLabel && ! ($wish->route_mode === 'custom' && $wish->guided_days >= 2))
             <span class="ui-chip">
                 {{ $routeModeLabel }}
             </span>

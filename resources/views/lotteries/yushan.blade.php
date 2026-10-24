@@ -70,7 +70,7 @@
                     <div>
                         <span class="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white">許願看板</span>
                         <h1 class="mt-3 text-2xl font-semibold leading-tight">找同樣想上山的人</h1>
-                        <p class="mt-2 text-sm leading-6 text-emerald-50">每個許願都是一趟想出發的行程，看到想去的山就 +1。</p>
+                        <p class="mt-2 text-sm leading-6 text-emerald-50">先選想走的行程與出發月份，找到合適的團就 +1。</p>
                     </div>
                     <div class="shrink-0 rounded-2xl bg-white/15 px-3 py-2 text-center backdrop-blur-sm">
                         <div class="text-lg font-semibold">{{ $totalParticipants }}</div>
@@ -79,11 +79,68 @@
                 </div>
             </section>
 
-            <section class="space-y-3">
+            <section class="ui-card space-y-4" aria-labelledby="find-trip-title">
+                <div class="flex items-center justify-between gap-3">
+                    <h2 id="find-trip-title" class="font-semibold text-slate-950">找適合我的行程</h2>
+                    @if ($hasFilters || ($filters['sort'] ?? 'date') !== 'date')
+                        <a href="{{ route('lotteries.yushan') }}" class="text-sm font-medium text-emerald-700">清除條件</a>
+                    @endif
+                </div>
+                <form method="GET" action="{{ route('lotteries.yushan') }}" class="space-y-4">
+                    <div>
+                        <label for="trip-search" class="ui-label">想去哪座山，或跟誰出發？</label>
+                        <input id="trip-search" name="q" type="search" maxlength="100" value="{{ $filters['q'] }}" placeholder="搜尋山名或主揪，例如：玉山" class="min-h-11 w-full rounded-2xl border-slate-200 px-4 py-3 text-sm focus:border-emerald-400 focus:ring-emerald-100">
+                    </div>
+                    <fieldset>
+                        <legend class="ui-label">行程類型</legend>
+                        <div class="grid grid-cols-3 gap-2">
+                            @foreach (['' => '全部行程', 'single' => '單攻', 'overnight' => '過夜'] as $value => $label)
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="duration" value="{{ $value }}" @checked(($filters['duration'] ?? '') === $value) class="peer sr-only">
+                                    <span class="flex min-h-11 items-center justify-center rounded-2xl border border-slate-200 px-2 text-sm font-medium text-slate-600 peer-checked:border-emerald-600 peer-checked:bg-emerald-50 peer-checked:text-emerald-800 peer-focus-visible:ring-2 peer-focus-visible:ring-emerald-500">{{ $label }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                        <p class="ui-help">過夜包含已填寫 2 天以上的行程。</p>
+                    </fieldset>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="trip-month" class="ui-label">出發月份</label>
+                            <select id="trip-month" name="month" class="w-full">
+                                <option value="">不限月份</option>
+                                @foreach ($availableMonths->merge([$filters['month'] ?? null])->filter()->unique()->sort() as $month)
+                                    <option value="{{ $month }}" @selected(($filters['month'] ?? '') === $month)>{{ \Illuminate\Support\Carbon::parse($month.'-01')->format('Y 年 n 月') }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label for="trip-group" class="ui-label">成團方式</label>
+                            <select id="trip-group" name="group" class="w-full">
+                                <option value="">不限方式</option>
+                                <option value="self" @selected(($filters['group'] ?? '') === 'self')>自由成團</option>
+                                <option value="guided" @selected(($filters['group'] ?? '') === 'guided')>請嚮導帶團</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex items-end gap-3">
+                        <div class="min-w-0 flex-1">
+                            <label for="trip-sort" class="ui-label">排序方式</label>
+                            <select id="trip-sort" name="sort" class="w-full">
+                                <option value="date" @selected(($filters['sort'] ?? 'date') === 'date')>最近出發</option>
+                                <option value="popular" @selected(($filters['sort'] ?? '') === 'popular')>最多人想去</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="ui-btn-primary shrink-0">尋找行程</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="space-y-3" aria-labelledby="trip-results-title">
                 <div class="flex items-end justify-between px-1">
                     <div>
-                        <h3 class="text-base font-semibold text-slate-950">大家正在許願</h3>
-                        <p class="mt-1 text-xs text-slate-500">{{ $totalMountains }} 個想去的地方 · 依出發日期排列</p>
+                        <h3 id="trip-results-title" class="text-base font-semibold text-slate-950">{{ $hasFilters ? '符合需求的行程' : '大家正在許願' }}</h3>
+                        <p class="mt-1 text-xs text-slate-500">找到 {{ $wishes->total() }} 團 · {{ ($filters['sort'] ?? 'date') === 'popular' ? '依響應人數排列' : '依出發日期排列' }}</p>
+                        <p class="mt-1 text-xs text-slate-500">顯示 {{ \Illuminate\Support\Carbon::parse($minWishDate)->format('m/d') }} 起出發的行程</p>
                     </div>
                     @if ($nextWishDate)
                         <span class="ui-chip-hope">最近 {{ $nextWishDate->format('m/d') }}</span>
@@ -98,9 +155,15 @@
                     ], key('popular-lottery-'.$wish->id))
                 @empty
                     <div class="ui-empty">
-                        <div class="text-sm font-medium text-slate-900">還沒有人發起許願</div>
-                        <p class="mt-1 text-sm text-slate-500">成為第一位，告訴山友你想去哪裡。</p>
-                        <button type="button" class="ui-btn-primary mt-4" x-on:click="createOpen = true">發起第一個許願</button>
+                        @if ($hasFilters)
+                            <div class="text-sm font-medium text-slate-900">目前沒有符合條件的行程</div>
+                            <p class="mt-1 text-sm text-slate-500">試試其他月份、縮短山名，或放寬行程類型。</p>
+                            <a href="{{ route('lotteries.yushan') }}" class="ui-btn-soft mt-4">查看全部行程</a>
+                        @else
+                            <div class="text-sm font-medium text-slate-900">還沒有人發起許願</div>
+                            <p class="mt-1 text-sm text-slate-500">成為第一位，告訴山友你想去哪裡。</p>
+                            <button type="button" class="ui-btn-primary mt-4" x-on:click="createOpen = true">發起第一個許願</button>
+                        @endif
                     </div>
                 @endforelse
 
