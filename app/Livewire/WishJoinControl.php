@@ -6,7 +6,6 @@ use App\Actions\ToggleWishJoin;
 use App\Actions\NotifyWishParticipants;
 use App\Models\TripWish;
 use Illuminate\View\View;
-use Livewire\Attributes\Renderless;
 use Livewire\Component;
 
 class WishJoinControl extends Component
@@ -19,12 +18,19 @@ class WishJoinControl extends Component
 
     public bool $simpleJoinLabel = false;
 
+    public bool $detailsOpen = false;
+
+    public function openDetails(): void
+    {
+        abort_unless(auth()->check(), 403);
+        $this->detailsOpen = true;
+    }
+
     public function mount(int $wishId): void
     {
         $this->wishId = $wishId;
     }
 
-    #[Renderless]
     public function toggle(ToggleWishJoin $toggleWishJoin, NotifyWishParticipants $notifyWishParticipants): void
     {
         $wish = $this->wish();
@@ -51,8 +57,13 @@ class WishJoinControl extends Component
 
     public function render(): View
     {
+        $wish = $this->wish();
+
         return view('livewire.wish-join-control', [
-            'wish' => $this->wish(),
+            'wish' => $wish,
+            'hostedCount' => $this->detailsOpen
+                ? TripWish::where('user_id', $wish->user_id)->count()
+                : null,
         ]);
     }
 

@@ -178,9 +178,8 @@ class YushanLotteryTest extends TestCase
         $this->actingAs($user)
             ->get(route('lotteries.yushan'))
             ->assertSee('請嚮導帶團')
-            ->assertSee('揪團人數')
-            ->assertSee('每人預估費用')
-            ->assertSee('NT$2,000');
+            ->assertSee('嚮導費')
+            ->assertSee('NT$500');
     }
 
     public function test_self_organized_single_attack_shows_car_share_and_host_is_free(): void
@@ -199,12 +198,12 @@ class YushanLotteryTest extends TestCase
             ])
             ->assertRedirect(route('lotteries.yushan'));
 
-        $this->actingAs($user)
-            ->get(route('lotteries.yushan'))
-            ->assertSee('單攻整車車資')
-            ->assertSee('4 位同行者均分')
+        $wish = TripWish::where('mountain', '合歡北峰')->firstOrFail();
+        Livewire::actingAs($user)->test(WishJoinControl::class, ['wishId' => $wish->id])
+            ->call('openDetails')
+            ->assertSee('主揪免車資')
             ->assertSee('NT$2,000')
-            ->assertSee('主揪免車資');
+            ->assertSee('NT$2,500');
     }
 
     public function test_yushan_lottery_page_orders_by_date_and_paginates_after_five_items(): void

@@ -1,6 +1,6 @@
 <?php
 
 return [
-    'guide_daily_fee' => 4000,
+    'guide_fee_per_person' => 500,
     'transport_fee' => 8000,
 ];
