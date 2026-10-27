@@ -101,4 +101,26 @@ class TripDiscoveryTest extends TestCase
         parse_str(parse_url(session('url.intended'), PHP_URL_QUERY), $query);
         $this->assertEquals(['q' => '玉山', 'duration' => 'overnight'], $query);
     }
+
+    public function test_instant_search_returns_matching_interactive_cards_and_filtered_pagination(): void
+    {
+        foreach (range(1, 6) as $day) {
+            $this->wish(['wished_date' => '2026-11-'.str_pad($day, 2, '0', STR_PAD_LEFT)]);
+        }
+        $this->wish(['mountain' => '雪山主峰']);
+
+        $params = ['q' => '玉山', 'month' => '2026-11'];
+        $this->withHeader('X-Trip-Search', '1')->get(route('lotteries.yushan', $params))
+            ->assertOk()->assertViewIs('lotteries.partials.results')
+            ->assertSee('玉山主峰')->assertDontSee('雪山主峰')
+            ->assertSee('wire:snapshot', false)->assertSee('rel="next"', false)
+            ->assertSee('month=2026-11')->assertDontSee('<html', false);
+
+        $this->withHeader('X-Trip-Search', '1')->get(route('lotteries.yushan', $params + ['page' => 2]))
+            ->assertOk()->assertViewHas('wishes', fn ($wishes) => $wishes->count() === 1 && $wishes->currentPage() === 2)
+            ->assertSee('rel="prev"', false);
+
+        $this->withHeader('X-Trip-Search', '1')->get(route('lotteries.yushan', ['q' => '找不到的山']))
+            ->assertOk()->assertSee('目前沒有符合條件的行程');
+    }
 }

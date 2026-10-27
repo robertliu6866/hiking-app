@@ -63,7 +63,7 @@
         x-on:keydown.escape.window="createOpen = false"
         x-effect="document.body.classList.toggle('overflow-hidden', createOpen)"
     >
-        <div class="page-container space-y-5 pb-24">
+        <div class="page-container space-y-5 pb-24" x-data="tripSearch">
             <section class="overflow-hidden rounded-3xl bg-[linear-gradient(135deg,#064e3b_0%,#047857_58%,#34d399_100%)] p-5 text-white shadow-sm shadow-emerald-200">
                 <div class="flex items-start justify-between gap-4">
                     <div>
@@ -110,13 +110,13 @@
                         @endforeach
                     </nav>
                 </div>
-                <form method="GET" action="{{ route('lotteries.yushan') }}" class="space-y-3">
+                <form method="GET" action="{{ route('lotteries.yushan') }}" class="space-y-3" x-ref="searchForm" @submit.prevent="search()" @change="search()">
                     <input type="hidden" name="duration" value="{{ $filters['duration'] ?? '' }}">
                     <input type="hidden" name="month" value="{{ $filters['month'] ?? '' }}">
                     <label for="trip-search" class="sr-only">搜尋山名或主揪</label>
                     <div class="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white p-1.5">
-                        <input id="trip-search" name="q" type="search" maxlength="100" value="{{ $filters['q'] }}" placeholder="心裡有座山？搜山名或主揪" class="min-h-11 min-w-0 flex-1 rounded-xl border-0 bg-transparent px-3 text-sm focus:ring-2 focus:ring-emerald-200">
-                        <button type="submit" class="ui-btn-soft shrink-0">找找看</button>
+                        <input id="trip-search" x-ref="query" @input="queueSearch($event)" @compositionend="queueSearch($event)" name="q" type="search" maxlength="100" value="{{ $filters['q'] }}" placeholder="心裡有座山？搜山名或主揪" class="min-h-11 min-w-0 flex-1 rounded-xl border-0 bg-transparent px-3 text-sm focus:ring-2 focus:ring-emerald-200">
+                        <button type="submit" class="ui-btn-soft shrink-0" :aria-label="searching ? '搜尋中' : '搜尋行程'" x-text="searching ? '搜尋中…' : '搜尋'">搜尋</button>
                     </div>
                     <details class="px-1" @if (! empty($filters['group']) || ($filters['sort'] ?? 'date') !== 'date') open @endif>
                         <summary class="cursor-pointer py-1 text-sm text-slate-500">更多偏好</summary>
@@ -144,44 +144,10 @@
                 </form>
             </section>
 
-            <section class="space-y-3" aria-labelledby="trip-results-title">
-                <div class="flex items-end justify-between px-1">
-                    <div>
-                        <h3 id="trip-results-title" class="text-base font-semibold text-slate-950">{{ $hasFilters ? '這幾團，想一起嗎？' : '大家正在許願' }}</h3>
-                        <p class="mt-1 text-xs text-slate-500">{{ $wishes->total() }} 團等你一起出發 · {{ ($filters['sort'] ?? 'date') === 'popular' ? '依響應人數排列' : '依出發日期排列' }}</p>
-                        <p class="mt-1 text-xs text-slate-500">顯示 {{ \Illuminate\Support\Carbon::parse($minWishDate)->format('m/d') }} 起出發的行程</p>
-                    </div>
-                    @if ($nextWishDate)
-                        <span class="ui-chip-hope">最近 {{ $nextWishDate->format('m/d') }}</span>
-                    @endif
-                </div>
-
-                @forelse ($wishes as $wish)
-                    @livewire(\App\Livewire\WishJoinControl::class, [
-                        'wishId' => $wish->id,
-                        'allowCancel' => true,
-                        'simpleJoinLabel' => true,
-                    ], key('popular-lottery-'.$wish->id))
-                @empty
-                    <div class="ui-empty">
-                        @if ($hasFilters)
-                            <div class="text-sm font-medium text-slate-900">目前沒有符合條件的行程</div>
-                            <p class="mt-1 text-sm text-slate-500">試試其他月份、縮短山名，或放寬行程類型。</p>
-                            <a href="{{ route('lotteries.yushan') }}" class="ui-btn-soft mt-4">查看全部行程</a>
-                        @else
-                            <div class="text-sm font-medium text-slate-900">還沒有人發起許願</div>
-                            <p class="mt-1 text-sm text-slate-500">成為第一位，告訴山友你想去哪裡。</p>
-                            <button type="button" class="ui-btn-primary mt-4" x-on:click="createOpen = true">發起第一個許願</button>
-                        @endif
-                    </div>
-                @endforelse
-
-                @if ($wishes->hasPages())
-                    <div class="ui-card px-4 py-3">
-                        {{ $wishes->links('pagination.compact') }}
-                    </div>
-                @endif
-            </section>
+            <p x-cloak x-show="searchError" role="alert" class="text-sm text-red-600">搜尋暫時失敗，請再試一次。</p>
+            <div x-ref="results" :aria-busy="searching" :class="{ 'opacity-60': searching }" class="transition-opacity" @click="paginate($event)">
+                @include('lotteries.partials.results')
+            </div>
         </div>
 
         <div class="pointer-events-none fixed inset-x-0 bottom-5 z-30 mx-auto flex w-full max-w-[430px] justify-center px-4">

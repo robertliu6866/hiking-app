@@ -94,7 +94,7 @@ class LotteryController extends Controller
             ->unique()
             ->values();
 
-        return view('lotteries.yushan', [
+        return view($request->header('X-Trip-Search') === '1' ? 'lotteries.partials.results' : 'lotteries.yushan', [
             'wishes' => $wishes,
             'totalParticipants' => $summaryWishes->sum('users_count'),
             'totalMountains' => $summaryWishes->count(),
