@@ -13,7 +13,7 @@
   
 
     @livewireStyles
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/livewire.js'])
 </head>
 <body style="margin:0; background:#e5e7eb;">
     <div style="min-height:100vh; display:flex; justify-content:center;">
@@ -46,6 +46,6 @@
         </div>
     </div>
 
-    @livewireScripts
+    @livewireScriptConfig
 </body>
 </html>
