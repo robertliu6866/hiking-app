@@ -178,7 +178,7 @@
 
                 @if ($wishes->hasPages())
                     <div class="ui-card px-4 py-3">
-                        {{ $wishes->links() }}
+                        {{ $wishes->links('pagination.compact') }}
                     </div>
                 @endif
             </section>
