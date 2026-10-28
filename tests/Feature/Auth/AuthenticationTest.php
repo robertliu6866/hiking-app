@@ -51,4 +51,12 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
         $response->assertRedirect('/');
     }
+
+    public function test_login_accepts_email_with_uppercase_and_surrounding_spaces(): void
+    {
+        $user = User::factory()->create(['email' => 'hiker@example.com']);
+        $this->post('/login', ['email' => ' HIKER@Example.COM ', 'password' => 'password'])
+            ->assertRedirect(route('lotteries.yushan', absolute: false));
+        $this->assertAuthenticatedAs($user);
+    }
 }

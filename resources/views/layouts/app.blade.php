@@ -38,6 +38,7 @@
             @endisset
 
             <main>
+                <x-registration-welcome />
                 {{ $slot }}
             </main>
 

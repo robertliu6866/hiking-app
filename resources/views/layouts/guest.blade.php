@@ -12,7 +12,7 @@
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
         <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @vite(['resources/css/app.css', 'resources/js/guest.js'])
     </head>
     <body class="font-sans text-slate-900 antialiased">
         <div class="mx-auto min-h-screen w-full max-w-[430px] bg-gradient-to-b from-emerald-50 via-slate-50 to-white">

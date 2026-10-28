@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Support\AuthRedirect;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,11 +17,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(Request $request): View
     {
-        $redirectTo = $request->query('redirect_to');
-
-        if (is_string($redirectTo) && str_starts_with($redirectTo, url('/'))) {
-            $request->session()->put('url.intended', $redirectTo);
-        }
+        AuthRedirect::remember($request);
 
         return view('auth.login');
     }

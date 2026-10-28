@@ -3,17 +3,16 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
-
+use App\Support\AuthRedirect;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
-
 
 class RegisteredUserController extends Controller
 {
@@ -22,11 +21,7 @@ class RegisteredUserController extends Controller
      */
     public function create(Request $request): View
     {
-        $redirectTo = $request->query('redirect_to');
-
-        if (is_string($redirectTo) && str_starts_with($redirectTo, url('/'))) {
-            $request->session()->put('url.intended', $redirectTo);
-        }
+        AuthRedirect::remember($request);
 
         return view('auth.register');
     }
@@ -36,16 +31,8 @@ class RegisteredUserController extends Controller
      *
      * @throws ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(RegisterRequest $request): RedirectResponse
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'max:20', 'unique:users,phone'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
-        ]);
-
         $avatarPath = null;
 
         if ($request->hasFile('avatar')) {
@@ -65,6 +52,7 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
 
         Auth::login($user);
+        $request->session()->regenerate();
 
         return redirect()
             ->intended(route('lotteries.yushan', absolute: false))
