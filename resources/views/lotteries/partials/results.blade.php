@@ -15,6 +15,7 @@
                         'wishId' => $wish->id,
                         'allowCancel' => true,
                         'simpleJoinLabel' => true,
+                        'detailsOpen' => ($selectedWishId ?? null) === $wish->id,
                     ], key('popular-lottery-'.$wish->id))
                 @empty
                     <div class="ui-empty">

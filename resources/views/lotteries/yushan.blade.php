@@ -63,7 +63,7 @@
         x-on:keydown.escape.window="createOpen = false"
         x-effect="document.body.classList.toggle('overflow-hidden', createOpen)"
     >
-        <div class="page-container space-y-5 pb-24" x-data="tripSearch">
+        <div class="page-container space-y-5 pb-24" x-data="tripSearch" @trip-search-submit="search()">
             <section class="overflow-hidden rounded-3xl bg-[linear-gradient(135deg,#064e3b_0%,#047857_58%,#34d399_100%)] p-5 text-white shadow-sm shadow-emerald-200">
                 <div class="flex items-start justify-between gap-4">
                     <div>
@@ -110,21 +110,17 @@
                         @endforeach
                     </nav>
                 </div>
-                <form method="GET" action="{{ route('lotteries.yushan') }}" class="space-y-3" x-ref="searchForm" @submit.prevent="search()" @change="search()">
+                <form method="GET" action="{{ route('lotteries.yushan') }}" class="space-y-3" x-ref="searchForm" @submit.prevent="search()">
                     <input type="hidden" name="duration" value="{{ $filters['duration'] ?? '' }}">
                     <input type="hidden" name="month" value="{{ $filters['month'] ?? '' }}">
-                    <label for="trip-search" class="sr-only">搜尋山名或主揪</label>
-                    <div class="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white p-1.5">
-                        <input id="trip-search" x-ref="query" @input="queueSearch($event)" @compositionend="queueSearch($event)" name="q" type="search" maxlength="100" value="{{ $filters['q'] }}" placeholder="心裡有座山？搜山名或主揪" class="min-h-11 min-w-0 flex-1 rounded-xl border-0 bg-transparent px-3 text-sm focus:ring-2 focus:ring-emerald-200">
-                        <button type="submit" class="ui-btn-soft shrink-0" :aria-label="searching ? '搜尋中' : '搜尋行程'" x-text="searching ? '搜尋中…' : '搜尋'">搜尋</button>
-                    </div>
+                    @livewire(\App\Livewire\TripInlineSearch::class, ['search' => $filters['q'], 'filters' => $filters])
                     <details class="px-1" @if (! empty($filters['group']) || ($filters['sort'] ?? 'date') !== 'date') open @endif>
                         <summary class="cursor-pointer py-1 text-sm text-slate-500">更多偏好</summary>
                         <div class="mt-3 space-y-3 rounded-2xl border border-slate-100 bg-white p-4">
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label for="trip-group" class="ui-label">想怎麼成團？</label>
-                                    <select id="trip-group" name="group" class="w-full">
+                                    <select id="trip-group" name="group" class="w-full" @change="$dispatch('trip-inline-filters', { group: $event.target.value, sort: $refs.sort.value }); search()">
                                         <option value="">都可以</option>
                                         <option value="self" @selected(($filters['group'] ?? '') === 'self')>山友自組</option>
                                         <option value="guided" @selected(($filters['group'] ?? '') === 'guided')>想跟嚮導</option>
@@ -132,7 +128,7 @@
                                 </div>
                                 <div>
                                     <label for="trip-sort" class="ui-label">想先看哪些？</label>
-                                    <select id="trip-sort" name="sort" class="w-full">
+                                    <select id="trip-sort" name="sort" x-ref="sort" class="w-full" @change="$dispatch('trip-inline-filters', { group: $refs.searchForm.elements.group.value, sort: $event.target.value }); search()">
                                         <option value="date" @selected(($filters['sort'] ?? 'date') === 'date')>最近出發的</option>
                                         <option value="popular" @selected(($filters['sort'] ?? '') === 'popular')>大家想去的</option>
                                     </select>

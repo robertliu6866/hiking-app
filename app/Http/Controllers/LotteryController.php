@@ -24,19 +24,26 @@ class LotteryController extends Controller
             'month' => ['nullable', 'date_format:Y-m'],
             'group' => ['nullable', Rule::in(['self', 'guided'])],
             'sort' => ['nullable', Rule::in(['date', 'popular'])],
+            'wish' => ['nullable', 'integer', 'min:1'],
         ]);
+        $selectedWishId = isset($filters['wish']) ? (int) $filters['wish'] : null;
+        unset($filters['wish']);
         $filters['q'] = trim($filters['q'] ?? '');
         $hasFilters = collect($filters)->except('sort')->filter()->isNotEmpty();
         $availableMonths = (clone $eligibleWishes)->orderBy('wished_date')
             ->pluck('wished_date')->map(fn ($date) => Carbon::parse($date)->format('Y-m'))
             ->unique()->values();
         $filteredWishes = clone $eligibleWishes;
+        if ($selectedWishId) {
+            $filteredWishes->whereKey($selectedWishId);
+        }
 
         if ($filters['q'] !== '') {
             // Treat LIKE wildcards as literal characters in search terms.
             $keyword = '%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $filters['q']).'%';
             $filteredWishes->where(function ($query) use ($keyword) {
                 $query->whereRaw("mountain LIKE ? ESCAPE '!'", [$keyword])
+                    ->orWhereRaw("note LIKE ? ESCAPE '!'", [$keyword])
                     ->orWhereHas('user', fn ($user) => $user->whereRaw("name LIKE ? ESCAPE '!'", [$keyword]));
             });
         }
@@ -105,6 +112,7 @@ class LotteryController extends Controller
             'filters' => $filters,
             'hasFilters' => $hasFilters,
             'availableMonths' => $availableMonths,
+            'selectedWishId' => $selectedWishId,
         ]);
     }
 }
